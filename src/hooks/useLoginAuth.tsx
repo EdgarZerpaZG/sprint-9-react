@@ -37,13 +37,11 @@ export function useLoginForm(onSuccess?: () => void) {
       return;
     }
 
-    // ⏰ Timeout de seguridad por si algo raro pasa con la promesa
     const safetyTimeout = setTimeout(() => {
       console.warn("[login] safety timeout -> setLoading(false)");
       setLoading(false);
-    }, 4000); // 4s por si acaso
+    }, 3000);
 
-    // 👇 Escuchamos SOLO este intento de login
     const { data: listener } = supabase.auth.onAuthStateChange(
       (event, session) => {
         console.log("[login] onAuthStateChange FROM hook:", event, session);
@@ -94,14 +92,12 @@ export function useLoginForm(onSuccess?: () => void) {
 
         if (error) {
           console.error("[login] Login error:", error);
-          // Si hay error, soltamos loading aquí también
           clearTimeout(safetyTimeout);
           setMessage("Invalid email or password.");
           setLoading(false);
           listener.subscription.unsubscribe();
         }
 
-        // Si todo va bien, realmente esperamos al SIGNED_IN de arriba
       })
       .catch((err) => {
         console.error("[login] CATCH error:", err);

@@ -1,6 +1,7 @@
 import { Navigate } from "react-router-dom";
-import { useAuth } from "../hooks/useAuth";
 import type { ReactNode } from "react";
+import { useAuth } from "../hooks/useAuth";
+import { useUserRole } from "../hooks/useUserRole";
 
 type Props = {
   allowedRoles: Array<"user" | "editor" | "admin">;
@@ -9,8 +10,9 @@ type Props = {
 
 export function RequireRole({ allowedRoles, children }: Props) {
   const { user, loading } = useAuth();
+  const { role, loadingRole } = useUserRole();
 
-  if (loading) {
+  if (loading || loadingRole) {
     return (
       <div className="flex justify-center items-center py-10">
         <p>Checking permissions...</p>
@@ -18,7 +20,11 @@ export function RequireRole({ allowedRoles, children }: Props) {
     );
   }
 
-  if (!user || !user.role || !allowedRoles.includes(user.role)) {
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
+
+  if (!allowedRoles.includes(role)) {
     return <Navigate to="/" replace />;
   }
 
