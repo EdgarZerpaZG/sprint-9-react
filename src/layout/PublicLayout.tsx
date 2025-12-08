@@ -5,7 +5,6 @@ export default function PublicLayout() {
   return (
     <>
       <Navbar />
-      {/* Add top padding if your navbar is fixed */}
       <div className="pt-24">
         <Outlet />
       </div>

@@ -1,6 +1,8 @@
 import { Routes, Route } from "react-router-dom";
 import Home from "../pages/Home";
 import Calendar from "../pages/Calendar";
+import Pages from "../pages/Pages";
+import Posts from "../pages/Posts";
 import Login from "../pages/Login";
 import Register from "../pages/Register";
 import EmailConfirmation from "../pages/EmailConfirmation";
@@ -16,9 +18,9 @@ import { RequireRole } from "./RequireRole";
 import PublicLayout from "../layout/PublicLayout";
 import DashboardLayout from "../layout/DashboardLayout";
 
-// Si quieres crear una página específica para calendario dentro del dashboard,
-// puedes reutilizar tu page Calendar o crear DashboardCalendar.
-import DashboardCalendar from "../pages/Calendar"; // temporal
+import CalendarManagement from "../pages/CalendarManagement";
+import PagesManagement from "../pages/PagesManagement";
+import PostsManagement from "../pages/PostsManagement";
 
 export default function PagesRoutes() {
   return (
@@ -27,6 +29,8 @@ export default function PagesRoutes() {
       <Route element={<PublicLayout />}>
         <Route path="/" element={<Home />} />
         <Route path="/calendar" element={<Calendar />} />
+        <Route path="/pages" element={<Pages />} />
+        <Route path="/posts" element={<Posts />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/emailconfirmation" element={<EmailConfirmation />} />
@@ -47,21 +51,20 @@ export default function PagesRoutes() {
       <Route index element={<Dashboard />} />
 
       {/* /dashboard/calendar */}
-      <Route path="calendar" element={<DashboardCalendar />} />
+      <Route path="calendar-management" element={<CalendarManagement />} />
 
-      {/* /dashboard/users (solo admin) */}
-      <Route
-        path="users"
-        element={
+      {/* /dashboard/users (admin only) */}
+      <Route path="users" element={
           <RequireRole allowedRoles={["admin"]}>
             <UserManagement />
           </RequireRole>
         }
       />
+      {/* /dashboard/pages */}
+      <Route path="pages-management" element={<PagesManagement />} />
 
-      {/* futuras rutas */}
-      {/* <Route path="pages" element={<PagesManager />} /> */}
-      {/* <Route path="posts" element={<PostsManager />} /> */}
+      {/* /dashboard/posts */}
+      <Route path="posts-management" element={<PostsManagement />} />
       </Route>
 
       <Route path="/access-denied" element={<AccessDenied />} />

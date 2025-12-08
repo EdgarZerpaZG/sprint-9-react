@@ -1,4 +1,3 @@
-// src/layouts/DashboardLayout.tsx
 import { NavLink, Outlet } from "react-router-dom";
 import { useUserRole } from "../hooks/useUserRole";
 import DashboardTop from "../components/Dashboard/DashboardTop";
@@ -42,18 +41,14 @@ export default function DashboardLayout() {
             to=""
             end
             className={({ isActive }) =>
-              [linkBase, isActive ? linkActive : linkIdle].join(" ")
-            }
-          >
+              [linkBase, isActive ? linkActive : linkIdle].join(" ")}>
             Overview
           </NavLink>
 
           <NavLink
-            to="calendar"
+            to="calendar-management"
             className={({ isActive }) =>
-              [linkBase, isActive ? linkActive : linkIdle].join(" ")
-            }
-          >
+              [linkBase, isActive ? linkActive : linkIdle].join(" ")}>
             Bookings
           </NavLink>
 
@@ -62,9 +57,7 @@ export default function DashboardLayout() {
             <NavLink
               to="users"
               className={({ isActive }) =>
-                [linkBase, isActive ? linkActive : linkIdle].join(" ")
-              }
-            >
+                [linkBase, isActive ? linkActive : linkIdle].join(" ")}>
               Users
             </NavLink>
           )}
@@ -76,29 +69,23 @@ export default function DashboardLayout() {
             </p>
 
             <NavLink
-              to="pages"
+              to="pages-management"
               className={({ isActive }) =>
-                [linkBase, isActive ? linkActive : linkIdle].join(" ")
-              }
-            >
-              Pages (soon)
+                [linkBase, isActive ? linkActive : linkIdle].join(" ")}>
+              Pages
             </NavLink>
 
             <NavLink
-              to="posts"
+              to="posts-management"
               className={({ isActive }) =>
-                [linkBase, isActive ? linkActive : linkIdle].join(" ")
-              }
-            >
-              Posts (soon)
+                [linkBase, isActive ? linkActive : linkIdle].join(" ")}>
+              Posts
             </NavLink>
 
             <NavLink
-              to="media"
+              to="media-management"
               className={({ isActive }) =>
-                [linkBase, isActive ? linkActive : linkIdle].join(" ")
-              }
-            >
+                [linkBase, isActive ? linkActive : linkIdle].join(" ")}>
               Media (soon)
             </NavLink>
           </div>
@@ -112,9 +99,7 @@ export default function DashboardLayout() {
             <NavLink
               to="settings"
               className={({ isActive }) =>
-                [linkBase, isActive ? linkActive : linkIdle].join(" ")
-              }
-            >
+                [linkBase, isActive ? linkActive : linkIdle].join(" ")}>
               Settings (soon)
             </NavLink>
           </div>
@@ -123,9 +108,7 @@ export default function DashboardLayout() {
 
       {/* Content area */}
       <div className="ml-64 min-h-screen">
-        {/* Simple internal top bar for dashboard */}
         <DashboardTop />
-
         <main className="p-6">
           <Outlet />
         </main>
