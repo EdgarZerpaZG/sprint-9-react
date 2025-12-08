@@ -5,28 +5,33 @@ import { useAuth } from "./useAuth";
 type Role = "user" | "editor" | "admin";
 
 export function useUserRole() {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
   const [role, setRole] = useState<Role>("user");
   const [loadingRole, setLoadingRole] = useState(true);
 
   useEffect(() => {
     let alive = true;
 
-    async function loadRole() {
-      if (!user?.id) {
-        if (alive) {
-          setRole("user");
-          setLoadingRole(false);
-        }
-        return;
-      }
+    if (loading) {
+      setLoadingRole(true);
+      return;
+    }
 
+    if (!user) {
+      setRole("user");
+      setLoadingRole(false);
+      return;
+    }
+
+    const userId = user.id;
+
+    async function fetchRole() {
       setLoadingRole(true);
 
       const { data, error } = await supabase
         .from("users")
         .select("role")
-        .eq("id", user.id)
+        .eq("id", userId)
         .maybeSingle();
 
       if (!alive) return;
@@ -35,18 +40,19 @@ export function useUserRole() {
         console.error("[useUserRole] error:", error);
         setRole("user");
       } else {
-        setRole((data?.role as Role) ?? "user");
+        const dbRole = data?.role as Role | undefined;
+        setRole(dbRole ?? "user");
       }
 
       setLoadingRole(false);
     }
 
-    loadRole();
+    fetchRole();
 
     return () => {
       alive = false;
     };
-  }, [user?.id]);
+  }, [user?.id, loading]);
 
   return { role, loadingRole };
 }

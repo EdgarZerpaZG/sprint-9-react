@@ -25,7 +25,7 @@ export function RequireRole({ allowedRoles, children }: Props) {
   }
 
   if (!allowedRoles.includes(role)) {
-    return <Navigate to="/" replace />;
+    return <Navigate to="/access-denied" replace />;
   }
 
   return <>{children}</>;

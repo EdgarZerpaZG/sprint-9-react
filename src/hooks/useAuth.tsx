@@ -1,8 +1,8 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import type { ReactNode } from "react";
 import { supabase } from "./../lib/supabaseClient";
-import type { UserAuth } from './../types/userTypes';
-import type { AuthContextType } from './../types/authTypes';
+import type { UserAuth } from "../types/userTypes";
+import type { AuthContextType } from "../types/authTypes";
 
 const AuthContext = createContext<AuthContextType>({
   user: null,
@@ -15,28 +15,47 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let alive = true;
+
     async function getSession() {
-      const { data } = await supabase.auth.getSession();
-      if (data?.session?.user) {
-        const { id, email } = data.session.user;
-        const username = data.session.user.user_metadata?.username;
-        setUser({ id, email: email ?? "", username: username ?? "" });
+      try {
+        const { data } = await supabase.auth.getSession();
+        const sessionUser = data?.session?.user;
+
+        if (!alive) return;
+
+        if (sessionUser) {
+          const { id, email } = sessionUser;
+          const username = sessionUser.user_metadata?.username;
+          setUser({ id, email: email ?? "", username: username ?? "" });
+        } else {
+          setUser(null);
+        }
+      } finally {
+        if (alive) setLoading(false);
       }
-      setLoading(false);
     }
+
     getSession();
 
-    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (session?.user) {
-        const { id, email } = session.user;
-        const username = session.user.user_metadata?.username;
-        setUser({ id, email: email ?? "", username: username ?? "" });
-      } else {
-        setUser(null);
+    const { data: listener } = supabase.auth.onAuthStateChange(
+      (_event, session) => {
+        const sessionUser = session?.user;
+
+        if (!alive) return;
+
+        if (sessionUser) {
+          const { id, email } = sessionUser;
+          const username = sessionUser.user_metadata?.username;
+          setUser({ id, email: email ?? "", username: username ?? "" });
+        } else {
+          setUser(null);
+        }
       }
-    });
+    );
 
     return () => {
+      alive = false;
       listener.subscription.unsubscribe();
     };
   }, []);
