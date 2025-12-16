@@ -5,5 +5,5 @@ export function getImageUrl(folder: string, filename: string): string {
     .from("images")
     .getPublicUrl(`${folder}/${filename}`);
 
-  return data?.publicUrl ?? "/default.jpg";
+  return data?.publicUrl ?? "/default.png";
 }
