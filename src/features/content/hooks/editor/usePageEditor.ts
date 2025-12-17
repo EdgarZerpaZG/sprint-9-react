@@ -1,3 +1,4 @@
+// src/hooks/usePageEditor.ts
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "../../../../lib/supabaseClient";
 import { Slugify } from "../../../../utils/slugify";
@@ -21,6 +22,7 @@ export function usePageEditor(pageId?: string) {
   const [blocks, setBlocks] = useState<Block[]>(emptyBlocks);
   const [coverPath, setCoverPath] = useState<string | null>(null);
 
+  // Load existing page if editing
   useEffect(() => {
     let alive = true;
 
@@ -63,6 +65,7 @@ export function usePageEditor(pageId?: string) {
     };
   }, [pageId]);
 
+  // Auto slug from title (only if user hasn't manually changed)
   const computedSlug = useMemo(() => Slugify(title), [title]);
 
   useEffect(() => {
@@ -114,10 +117,6 @@ export function usePageEditor(pageId?: string) {
     });
   }
 
-  function reorderBlocks(next: Block[]) {
-    setBlocks(next);
-  }
-
   async function save() {
     setSaving(true);
     setError(null);
@@ -160,6 +159,11 @@ export function usePageEditor(pageId?: string) {
       setSaving(false);
     }
   }
+
+  function reorderBlocks(next: Block[]) {
+    setBlocks(next);
+  }
+
 
   return {
     loading,

@@ -16,8 +16,8 @@ export default function Navbar() {
         <div className="flex justify-center items-center uppercase">
           <Link className="px-4 py-2 mx-2 text-black hover:text-gray-500" to="/">Home</Link>
           <Link className="px-4 py-2 mx-2 text-black hover:text-gray-500" to="/calendar">Calendar</Link>
-          <Link className="px-4 py-2 mx-2 text-black hover:text-gray-500" to="/contenido">Contenido</Link>
-          <Link className="px-4 py-2 mx-2 text-black hover:text-gray-500" to="/noticias">Noticias</Link>
+          <Link className="px-4 py-2 mx-2 text-black hover:text-gray-500" to="/pages">Content</Link>
+          <Link className="px-4 py-2 mx-2 text-black hover:text-gray-500" to="/posts">News</Link>
         </div>
       </nav>
     </>

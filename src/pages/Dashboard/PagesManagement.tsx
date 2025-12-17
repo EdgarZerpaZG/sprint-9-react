@@ -1,7 +1,8 @@
-import { Link } from "react-router-dom";
-import { usePages } from "../features/content/hooks/usePages";
+import { Link, useNavigate } from "react-router-dom";
+import { usePages } from "../../features/content/hooks/usePages";
 
-export default function PagesManager() {
+export default function PagesManagement() {
+  const navigate = useNavigate();
   const { pages, loading, error } = usePages();
 
   if (loading) return <p>Loading pages...</p>;
@@ -11,12 +12,13 @@ export default function PagesManager() {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-semibold">Pages</h1>
-        <Link
-          to="/dashboard/pages/new"
-          className="px-3 py-2 rounded bg-emerald-500 text-white text-sm"
+        <button
+          type="button"
+          onClick={() => navigate("/dashboard/pages/new")}
+          className="px-3 py-2 rounded bg-emerald-500 text-white text-sm hover:bg-emerald-600"
         >
           Add New
-        </Link>
+        </button>
       </div>
 
       <div className="bg-slate-900/40 border border-slate-800 rounded">
@@ -40,7 +42,7 @@ export default function PagesManager() {
                   </Link>
                   <div className="text-xs text-slate-500">{p.slug}</div>
                 </td>
-                <td className="p-3">{p.status}</td>
+                <td className="p-3 capitalize">{p.status}</td>
                 <td className="p-3">
                   {new Date(p.updated_at).toLocaleString()}
                 </td>

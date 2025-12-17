@@ -45,4 +45,6 @@ export type PageRow = {
   published_at: string | null;
 };
 
-export type PostRow = PageRow; 
+export type PostRow = PageRow & {
+  category?: string | null;
+};

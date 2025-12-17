@@ -67,12 +67,13 @@ export default function SortableBlockItem({
           value={block.data.text}
           onChange={(e) =>
             onUpdate(block.id, (old) => {
-              if (old.type !== "heading") return old;
-              return {
-                ...old,
-                type: "heading",
-                data: { ...old.data, text: e.target.value },
-              };
+              if (old.type === "heading") {
+                return {
+                  ...old,
+                  data: { ...old.data, text: e.target.value },
+                };
+              }
+              return old;
             })
           }
           placeholder="Heading text..."

@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
-import { usePosts } from "../features/content/hooks/usePosts";
+import { usePosts } from "../../features/content/hooks/usePosts";
 
-export default function PostsManager() {
+export default function PostsManagement() {
   const { posts, loading, error } = usePosts();
 
   if (loading) return <p>Loading posts...</p>;
@@ -13,7 +13,7 @@ export default function PostsManager() {
         <h1 className="text-xl font-semibold">Posts</h1>
         <Link
           to="/dashboard/posts/new"
-          className="px-3 py-2 rounded bg-emerald-500 text-white text-sm"
+          className="px-3 py-2 rounded bg-emerald-500 text-white text-sm hover:bg-emerald-600"
         >
           Add New
         </Link>
@@ -40,7 +40,7 @@ export default function PostsManager() {
                   </Link>
                   <div className="text-xs text-slate-500">{p.slug}</div>
                 </td>
-                <td className="p-3">{p.status}</td>
+                <td className="p-3 capitalize">{p.status}</td>
                 <td className="p-3">
                   {new Date(p.updated_at).toLocaleString()}
                 </td>
