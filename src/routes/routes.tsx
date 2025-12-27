@@ -3,6 +3,8 @@ import Home from "../pages/Home";
 import Calendar from "../pages/Calendar";
 import Pages from "../pages/Pages";
 import Posts from "../pages/Posts";
+import PageDetail from "../pages/PageDetail";
+import PostDetail from "../pages/PostDetail";
 import Login from "../pages/Login";
 import Register from "../pages/Register";
 import EmailConfirmation from "../pages/EmailConfirmation";
@@ -16,15 +18,18 @@ import { RequireAuth } from "./RequireAuth";
 import { RequireRole } from "./RequireRole";
 
 import PublicLayout from "../layout/PublicLayout";
+
+import HomeManagement from "../pages/Dashboard/HomeManagement";
+import HomeEditor from "../pages/Dashboard/HomeEditor";
+
 import DashboardLayout from "../layout/DashboardLayout";
 
 import CalendarManagement from "../pages/Dashboard/CalendarManagement";
 import PagesManagement from "../pages/Dashboard/PagesManagement";
 import PostsManagement from "../pages/Dashboard/PostsManagement";
 
-// 👇 importa el editor (o los editores)
 import PageEditor from "../pages/Dashboard/PageEditor";
-import PostEditor from "../pages/Dashboard/PostEditor"; // o el nombre que uses
+import PostEditor from "../pages/Dashboard/PostEditor";
 
 export default function PagesRoutes() {
   return (
@@ -34,7 +39,9 @@ export default function PagesRoutes() {
         <Route path="/" element={<Home />} />
         <Route path="/calendar" element={<Calendar />} />
         <Route path="/pages" element={<Pages />} />
+        <Route path="/pages/:slug" element={<PageDetail />} />
         <Route path="/posts" element={<Posts />} />
+        <Route path="/posts/:slug" element={<PostDetail />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/emailconfirmation" element={<EmailConfirmation />} />
@@ -52,31 +59,32 @@ export default function PagesRoutes() {
           </RequireAuth>
         }
       >
-        {/* /dashboard */}
-        <Route index element={<Dashboard />} />
+      {/* /dashboard */}
+      <Route index element={<Dashboard />} />
 
-        {/* /dashboard/calendar */}
-        <Route path="calendar-management" element={<CalendarManagement />} />
+      {/* /dashboard/home */}
+      <Route path="home-management" element={<HomeManagement />} />
+      <Route path="home-management/edit" element={<HomeEditor />} />
 
-        {/* /dashboard/users (admin only) */}
-        <Route
-          path="users"
-          element={
-            <RequireRole allowedRoles={["admin"]}>
-              <UserManagement />
-            </RequireRole>
-          }
-        />
+      {/* /dashboard/calendar */}
+      <Route path="calendar-management" element={<CalendarManagement />} />
 
-        {/* PAGES MANAGEMENT */}
-        {/* /dashboard/pages */}
-        <Route path="pages-management" element={<PagesManagement />} />
-        <Route path="pages/new" element={<PageEditor />} />
-        <Route path="pages/:id" element={<PageEditor />} />
+      {/* /dashboard/users (admin only) */}
+      <Route path="users" element={
+        <RequireRole allowedRoles={["admin"]}>
+          <UserManagement />
+        </RequireRole>}
+      />
 
-        <Route path="posts-management" element={<PostsManagement />} />
-        <Route path="posts/new" element={<PostEditor />} />
-        <Route path="posts/:id" element={<PostEditor />} />
+      {/* PAGES MANAGEMENT */}
+      {/* /dashboard/pages */}
+      <Route path="pages-management" element={<PagesManagement />} />
+      <Route path="pages/new" element={<PageEditor />} />
+      <Route path="pages/:id" element={<PageEditor />} />
+
+      <Route path="posts-management" element={<PostsManagement />} />
+      <Route path="posts/new" element={<PostEditor />} />
+      <Route path="posts/:id" element={<PostEditor />} />
       </Route>
 
       <Route path="/access-denied" element={<AccessDenied />} />

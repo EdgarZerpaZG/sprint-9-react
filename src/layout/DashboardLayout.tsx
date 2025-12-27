@@ -46,6 +46,13 @@ export default function DashboardLayout() {
           </NavLink>
 
           <NavLink
+            to="home-management"
+            className={({ isActive }) =>
+              [linkBase, isActive ? linkActive : linkIdle].join(" ")}>
+            Home
+          </NavLink>
+
+          <NavLink
             to="calendar-management"
             className={({ isActive }) =>
               [linkBase, isActive ? linkActive : linkIdle].join(" ")}>

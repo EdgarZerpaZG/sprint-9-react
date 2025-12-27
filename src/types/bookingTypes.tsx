@@ -5,6 +5,7 @@ export type Booking = {
   title: string | null;
   start_time: string; // ISO string
   end_time: string; // ISO string
+  profile_id?: string | null;
 };
 
 export type BookingModalMode = "create" | "edit";
@@ -19,4 +20,5 @@ export type BookingModalProps = {
   mode?: BookingModalMode;
   bookingId?: string;
   initialTitle?: string;
+  profileId?: string | null;
 };

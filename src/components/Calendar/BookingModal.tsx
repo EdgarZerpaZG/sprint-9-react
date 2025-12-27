@@ -12,6 +12,7 @@ export default function BookingModal(props: BookingModalProps) {
     mode = "create",
     bookingId,
     initialTitle = "",
+    profileId,
   } = props;
 
   const {
@@ -31,6 +32,7 @@ export default function BookingModal(props: BookingModalProps) {
     initialTitle,
     onSuccess,
     onClose,
+    profileId,
   });
 
   if (!open) return null;

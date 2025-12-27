@@ -11,6 +11,7 @@ type UseBookingModalParams = {
   initialTitle?: string;
   onSuccess?: () => void;
   onClose?: () => void;
+  profileId?: string | null;
 };
 
 export function useBookingModal({
@@ -22,6 +23,7 @@ export function useBookingModal({
   initialTitle = "",
   onSuccess,
   onClose,
+  profileId
 }: UseBookingModalParams) {
   const [title, setTitle] = useState(initialTitle);
   const [loading, setLoading] = useState(false);
@@ -65,7 +67,6 @@ export function useBookingModal({
         throw new Error("Invalid dates.");
       }
 
-      // 1) User authenticated
       const {
         data: { session },
       } = await supabase.auth.getSession();
@@ -76,7 +77,6 @@ export function useBookingModal({
 
       const userId = session.user.id;
 
-      // 2) Validate availability via RPC
       const { data: available, error: rpcErr } = await supabase.rpc(
         "is_available",
         {
@@ -100,12 +100,12 @@ export function useBookingModal({
       }
 
       if (mode === "create") {
-        // 3A) Insert
         const { data: insertedRows, error: insertErr } = await supabase
           .from("bookings")
           .insert([
             {
               user_id: userId,
+              profile_id: profileId ?? null,
               resource,
               title,
               start_time: startISO,
@@ -118,7 +118,6 @@ export function useBookingModal({
 
         if (insertErr) throw insertErr;
       } else {
-        // 3B) Update
         if (!bookingId) {
           throw new Error("Missing booking ID to edit.");
         }
@@ -129,6 +128,7 @@ export function useBookingModal({
             title,
             start_time: startISO,
             end_time: endISO,
+            profile_id: profileId ?? null,
           })
           .eq("id", bookingId)
           .select();
