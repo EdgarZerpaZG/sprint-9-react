@@ -1,6 +1,8 @@
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import type { Block } from "../../types/contentTypes";
+import RichTextBlockEditor from "./RichTextBlockEditor";
+import ImageBlockEditor from "./ImageBlockEditor"; // 👈 nuevo import
 
 type Props = {
   block: Block;
@@ -38,7 +40,6 @@ export default function SortableBlockItem({
     >
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-2">
-          {/* Drag handle */}
           <button
             className="px-2 py-1 text-xs bg-slate-800 rounded cursor-grab"
             {...attributes}
@@ -82,32 +83,36 @@ export default function SortableBlockItem({
       )}
 
       {block.type === "paragraph" && (
-        <textarea
+        <RichTextBlockEditor
           value={block.data.text}
-          onChange={(e) =>
+          onChange={(newText) =>
             onUpdate(block.id, (old) => ({
               ...old,
               type: "paragraph",
-              data: { ...old.data, text: e.target.value },
+              data: { ...old.data, text: newText },
             }))
           }
-          placeholder="Paragraph..."
-          className="w-full bg-slate-950 border border-slate-800 rounded p-2 text-sm min-h-20"
         />
       )}
 
       {block.type === "image" && (
-        <input
-          value={block.data.path}
-          onChange={(e) =>
-            onUpdate(block.id, (old) => ({
-              ...old,
-              type: "image",
-              data: { ...old.data, path: e.target.value },
-            }))
+        <ImageBlockEditor
+          path={block.data.path}
+          alt={block.data.alt}
+          folder="home" // para que se guarden dentro de una carpeta concreta
+          onChange={({ path, alt }) =>
+            onUpdate(block.id, (old) => {
+              if (old.type !== "image") return old;
+              return {
+                ...old,
+                data: {
+                  ...old.data,
+                  path,
+                  alt,
+                },
+              };
+            })
           }
-          placeholder="Image path..."
-          className="w-full bg-slate-950 border border-slate-800 rounded p-2 text-sm"
         />
       )}
     </div>

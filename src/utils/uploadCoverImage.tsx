@@ -5,8 +5,10 @@ export async function uploadCoverImage(
   type: "pages" | "posts",
   slug: string
 ) {
+  const safeSlug = slug.toLowerCase().replace(/\s+/g, "-").replace(/[^\w-]+/g, "");
+
   const ext = file.name.split(".").pop() ?? "jpg";
-  const path = `${type}/${slug}.${ext}`;
+  const path = `covers/${type}/${safeSlug}.${ext}`;
 
   const { error } = await supabase.storage
     .from("images")

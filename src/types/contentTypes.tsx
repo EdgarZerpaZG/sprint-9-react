@@ -1,6 +1,6 @@
 export type ContentStatus = "draft" | "published";
 
-export type BlockType = "heading" | "paragraph" | "image";
+export type BlockType = "heading" | "paragraph" | "image" | "richtext";
 
 export type BlockBase = {
   id: string;
@@ -22,7 +22,14 @@ export type ImageBlock = BlockBase & {
   data: { path: string; alt?: string };
 };
 
-export type Block = HeadingBlock | ParagraphBlock | ImageBlock;
+export type RichTextBlock = BlockBase & {
+  type: "richtext";
+  data: {
+    content: string; 
+  };
+};
+
+export type Block = HeadingBlock | ParagraphBlock | ImageBlock | RichTextBlock;
 
 export type SeoData = {
   title?: string;
