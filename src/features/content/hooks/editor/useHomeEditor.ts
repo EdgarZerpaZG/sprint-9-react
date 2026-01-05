@@ -64,6 +64,25 @@ export function useHomeEditor() {
   }, []);
 
   function addBlock(type: Block["type"]) {
+    if (type === "hero") {
+      setBlocks((prev) => [
+        ...prev,
+        {
+          id: crypto.randomUUID(),
+          type: "hero",
+          data: {
+            title: "Welcome to our shelter",
+            subtitle: "You can edit this hero block from the dashboard.",
+            buttonLabel: "See our animals",
+            buttonUrl: "/pages/adopt",
+            align: "left",
+            backgroundImagePath: null,
+          },
+        },
+      ]);
+      return;
+    }
+
     if (type === "heading") {
       setBlocks((prev) => [
         ...prev,
@@ -73,6 +92,7 @@ export function useHomeEditor() {
           data: { text: "", level: 2 },
         },
       ]);
+      return;
     }
 
     if (type === "paragraph") {
@@ -84,6 +104,7 @@ export function useHomeEditor() {
           data: { text: "" },
         },
       ]);
+      return;
     }
 
     if (type === "image") {
@@ -95,6 +116,7 @@ export function useHomeEditor() {
           data: { path: "", alt: "" },
         },
       ]);
+      return;
     }
   }
 
@@ -115,7 +137,11 @@ export function useHomeEditor() {
     setError(null);
 
     try {
-      console.log("[useHomeEditor] saving...", { rowId, status, blocksCount: blocks.length });
+      console.log("[useHomeEditor] saving...", {
+        rowId,
+        status,
+        blocksCount: blocks.length,
+      });
 
       const {
         data: { session },
@@ -156,7 +182,10 @@ export function useHomeEditor() {
         }
       } else {
         // UPDATE
-        console.log("[useHomeEditor] updating existing home_content row", rowId);
+        console.log(
+          "[useHomeEditor] updating existing home_content row",
+          rowId
+        );
 
         const { data, error } = await supabase
           .from("home_content")

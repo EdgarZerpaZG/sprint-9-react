@@ -2,7 +2,7 @@ import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import type { Block } from "../../types/contentTypes";
 import RichTextBlockEditor from "./RichTextBlockEditor";
-import ImageBlockEditor from "./ImageBlockEditor"; // 👈 nuevo import
+import ImageBlockEditor from "./ImageBlockEditor";
 
 type Props = {
   block: Block;
@@ -38,6 +38,7 @@ export default function SortableBlockItem({
       style={style}
       className="p-3 rounded border border-slate-800 bg-slate-900/50"
     >
+      {/* Header: drag handle + type + remove */}
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-2">
           <button
@@ -99,7 +100,7 @@ export default function SortableBlockItem({
         <ImageBlockEditor
           path={block.data.path}
           alt={block.data.alt}
-          folder="home" // para que se guarden dentro de una carpeta concreta
+          folder="home"
           onChange={({ path, alt }) =>
             onUpdate(block.id, (old) => {
               if (old.type !== "image") return old;
@@ -114,6 +115,160 @@ export default function SortableBlockItem({
             })
           }
         />
+      )}
+
+      {block.type === "hero" && (
+        <div className="space-y-3 mt-2">
+          {/* Title */}
+          <div>
+            <label className="block text-xs text-slate-400 mb-1">
+              Hero title
+            </label>
+            <input
+              type="text"
+              value={block.data.title}
+              onChange={(e) =>
+                onUpdate(block.id, (old) => {
+                  if (old.type !== "hero") return old;
+                  return {
+                    ...old,
+                    data: {
+                      ...old.data,
+                      title: e.target.value,
+                    },
+                  };
+                })
+              }
+              className="w-full bg-slate-950 border border-slate-800 rounded px-2 py-1 text-sm"
+              placeholder="Main hero title..."
+            />
+          </div>
+
+          {/* Subtitle */}
+          <div>
+            <label className="block text-xs text-slate-400 mb-1">
+              Subtitle
+            </label>
+            <textarea
+              value={block.data.subtitle ?? ""}
+              onChange={(e) =>
+                onUpdate(block.id, (old) => {
+                  if (old.type !== "hero") return old;
+                  return {
+                    ...old,
+                    data: {
+                      ...old.data,
+                      subtitle: e.target.value,
+                    },
+                  };
+                })
+              }
+              className="w-full bg-slate-950 border border-slate-800 rounded px-2 py-1 text-sm min-h-16"
+              placeholder="Short supporting text..."
+            />
+          </div>
+
+          {/* Button text + URL */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+            <div>
+              <label className="block text-xs text-slate-400 mb-1">
+                Button label
+              </label>
+              <input
+                type="text"
+                value={block.data.buttonLabel ?? ""}
+                onChange={(e) =>
+                  onUpdate(block.id, (old) => {
+                    if (old.type !== "hero") return old;
+                    return {
+                      ...old,
+                      data: {
+                        ...old.data,
+                        buttonLabel: e.target.value,
+                      },
+                    };
+                  })
+                }
+                className="w-full bg-slate-950 border border-slate-800 rounded px-2 py-1 text-xs"
+                placeholder="Example: View adoptable pets"
+              />
+            </div>
+            <div>
+              <label className="block text-xs text-slate-400 mb-1">
+                Button URL
+              </label>
+              <input
+                type="text"
+                value={block.data.buttonUrl ?? ""}
+                onChange={(e) =>
+                  onUpdate(block.id, (old) => {
+                    if (old.type !== "hero") return old;
+                    return {
+                      ...old,
+                      data: {
+                        ...old.data,
+                        buttonUrl: e.target.value,
+                      },
+                    };
+                  })
+                }
+                className="w-full bg-slate-950 border border-slate-800 rounded px-2 py-1 text-xs"
+                placeholder="/adopt" 
+              />
+            </div>
+          </div>
+
+          {/* Alignment */}
+          <div>
+            <label className="block text-xs text-slate-400 mb-1">
+              Content alignment
+            </label>
+            <select
+              value={block.data.align ?? "left"}
+              onChange={(e) =>
+                onUpdate(block.id, (old) => {
+                  if (old.type !== "hero") return old;
+                  return {
+                    ...old,
+                    data: {
+                      ...old.data,
+                      align: e.target.value as "left" | "center" | "right",
+                    },
+                  };
+                })
+              }
+              className="bg-slate-950 border border-slate-800 rounded px-2 py-1 text-xs"
+            >
+              <option value="left">Left</option>
+              <option value="center">Center</option>
+              <option value="right">Right</option>
+            </select>
+          </div>
+
+          {/* Background image (optional) */}
+          <div className="pt-2 border-t border-slate-800 mt-2">
+            <p className="text-xs text-slate-400 mb-2">
+              Background image (optional)
+            </p>
+            <ImageBlockEditor
+              path={block.data.backgroundImagePath ?? ""}
+              alt={block.data.title}
+              folder="home-hero"
+              onChange={({ path }) =>
+                onUpdate(block.id, (old) => {
+                  if (old.type !== "hero") return old;
+                  return {
+                    ...old,
+                    data: {
+                      ...old.data,
+                      backgroundImagePath: path,
+                    },
+                  };
+                })
+              }
+            />
+          </div>
+        </div>
       )}
     </div>
   );

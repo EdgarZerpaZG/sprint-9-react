@@ -36,7 +36,7 @@ export default function HomeEditor() {
         <div>
           <h1 className="text-2xl font-semibold">Home content</h1>
           <p className="text-sm text-slate-400">
-            Design the public home using blocks.
+            Design the public home using blocks (hero, headings, text, images).
           </p>
         </div>
 
@@ -58,10 +58,21 @@ export default function HomeEditor() {
 
       <form onSubmit={handleSubmit} className="grid grid-cols-12 gap-6">
         <section className="col-span-12 lg:col-span-8 space-y-4">
+          {/* Block toolbar */}
           <div className="rounded-lg bg-slate-900/60 border border-slate-800 p-3 flex flex-wrap items-center gap-2">
             <span className="text-xs uppercase tracking-widest text-slate-500">
               Blocks
             </span>
+
+            {/* HERO */}
+            <button
+              type="button"
+              onClick={() => addBlock("hero")}
+              className="px-2 py-1 text-xs rounded bg-emerald-600 hover:bg-emerald-500"
+            >
+              + Hero
+            </button>
+
             <button
               type="button"
               onClick={() => addBlock("heading")}
