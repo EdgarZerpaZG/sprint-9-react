@@ -1,4 +1,8 @@
-import type { Block } from "../../types/contentTypes";
+import type {
+  Block,
+  HeroBlock,
+  ColumnsBlock,
+} from "../../types/contentTypes";
 import { getPublicImageUrl } from "../../utils/images";
 
 type Props = {
@@ -13,6 +17,9 @@ export default function BlocksRenderer({ blocks }: Props) {
   return (
     <div className="space-y-6">
       {blocks.map((block) => {
+        // DEBUG opcional (puedes comentar esto si molesta):
+        // console.log("[BlocksRenderer] block:", block);
+
         // HEADING
         if (block.type === "heading") {
           const level = block.data.level ?? 2;
@@ -56,77 +63,173 @@ export default function BlocksRenderer({ blocks }: Props) {
 
         // HERO
         if (block.type === "hero") {
-          const { title, subtitle, buttonLabel, buttonUrl, align, backgroundImagePath } =
-            block.data;
-
-          const bgUrl =
-            backgroundImagePath && backgroundImagePath !== ""
-              ? getPublicImageUrl(backgroundImagePath)
-              : null;
-
-          // alignment classes
-          const alignText =
-            align === "center"
-              ? "text-center items-center"
-              : align === "right"
-              ? "text-right items-end"
-              : "text-left items-start";
-
-          return (
-            <section
-              key={block.id}
-              className="relative overflow-hidden rounded-xl border border-slate-800 bg-linear-to-r from-emerald-600/80 to-emerald-400/80 px-6 py-10 text-slate-50"
-            >
-              {/* Optional background image overlay */}
-              {bgUrl && (
-                <div
-                  className="absolute inset-0 opacity-30"
-                  style={{
-                    backgroundImage: `url(${bgUrl})`,
-                    backgroundSize: "cover",
-                    backgroundPosition: "center",
-                  }}
-                />
-              )}
-
-              <div className="relative flex flex-col gap-4 max-w-3xl mx-auto">
-                <div className={`flex flex-col gap-3 ${alignText}`}>
-                  <h1 className="text-3xl md:text-4xl font-bold tracking-tight">
-                    {title}
-                  </h1>
-
-                  {subtitle && (
-                    <p className="text-sm md:text-base text-emerald-50/90 max-w-xl">
-                      {subtitle}
-                    </p>
-                  )}
-                </div>
-
-                {buttonLabel && buttonUrl && (
-                  <div
-                    className={`mt-2 flex ${
-                      align === "center"
-                        ? "justify-center"
-                        : align === "right"
-                        ? "justify-end"
-                        : "justify-start"
-                    }`}
-                  >
-                    <a
-                      href={buttonUrl}
-                      className="inline-flex items-center gap-2 rounded-full bg-slate-950/90 px-4 py-2 text-sm font-medium hover:bg-slate-900 transition-colors"
-                    >
-                      {buttonLabel}
-                    </a>
-                  </div>
-                )}
-              </div>
-            </section>
-          );
+          return <HeroSection key={block.id} block={block} />;
         }
 
+        // COLUMNS
+        if (block.type === "columns") {
+          return <ColumnsSection key={block.id} block={block} />;
+        }
+
+        // Fallback (unknown block type)
         return null;
       })}
     </div>
+  );
+}
+
+/**
+ * HERO SECTION
+ */
+function HeroSection({ block }: { block: HeroBlock }) {
+  // Fallback para datos antiguos que puedan tener data.text
+  const rawData: any = block.data ?? {};
+
+  const title: string =
+    rawData.title || rawData.text || "Welcome to our shelter";
+
+  const subtitle: string | undefined = rawData.subtitle;
+  const buttonLabel: string | undefined = rawData.buttonLabel;
+  const buttonUrl: string | undefined = rawData.buttonUrl;
+  const align: "left" | "center" | "right" | undefined = rawData.align;
+  const backgroundImagePath: string | null | undefined =
+    rawData.backgroundImagePath;
+
+  // DEBUG opcional
+  // console.log("[HeroSection] data:", {
+  //   title,
+  //   subtitle,
+  //   buttonLabel,
+  //   buttonUrl,
+  //   align,
+  //   backgroundImagePath,
+  // });
+
+  const bgUrl =
+    backgroundImagePath && backgroundImagePath !== ""
+      ? getPublicImageUrl(backgroundImagePath)
+      : null;
+
+  const alignText =
+    align === "center"
+      ? "text-center items-center"
+      : align === "right"
+      ? "text-right items-end"
+      : "text-left items-start";
+
+  const buttonJustify =
+    align === "center"
+      ? "justify-center"
+      : align === "right"
+      ? "justify-end"
+      : "justify-start";
+
+  return (
+    <section className="relative overflow-hidden rounded-xl border border-slate-800 bg-linear-to-r from-emerald-600/80 to-emerald-400/80 px-6 py-10 text-slate-50">
+      {/* Background image opcional */}
+      {bgUrl && (
+        <div
+          className="absolute inset-0 opacity-30"
+          style={{
+            backgroundImage: `url(${bgUrl})`,
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+          }}
+        />
+      )}
+
+      <div className="relative flex flex-col gap-4 max-w-3xl mx-auto">
+        <div className={`flex flex-col gap-3 ${alignText}`}>
+          {title && (
+            <h1 className="text-3xl md:text-4xl font-bold tracking-tight">
+              {title}
+            </h1>
+          )}
+
+          {subtitle && (
+            <p className="text-sm md:text-base text-emerald-50/90 max-w-xl">
+              {subtitle}
+            </p>
+          )}
+        </div>
+
+        {buttonLabel && buttonUrl && (
+          <div className={`mt-2 flex ${buttonJustify}`}>
+            <a
+              href={buttonUrl}
+              className="inline-flex items-center gap-2 rounded-full bg-slate-950/90 px-4 py-2 text-sm font-medium hover:bg-slate-900 transition-colors"
+            >
+              {buttonLabel}
+            </a>
+          </div>
+        )}
+      </div>
+    </section>
+  );
+}
+
+/**
+ * COLUMNS SECTION
+ */
+function ColumnsSection({ block }: { block: ColumnsBlock }) {
+  const columns = block.data.columns ?? [];
+
+  if (!columns.length) return null;
+
+  return (
+    <section>
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+        {columns.map((col) => (
+          <div key={col.id} className="space-y-3">
+            {col.blocks?.map((inner) => {
+              if (inner.type === "heading") {
+                const level = inner.data.level ?? 3;
+                const Tag = `h${level}` as keyof React.JSX.IntrinsicElements;
+                return (
+                  <Tag
+                    key={inner.id}
+                    className="font-semibold text-sm md:text-base"
+                  >
+                    {inner.data.text}
+                  </Tag>
+                );
+              }
+
+              if (inner.type === "paragraph") {
+                return (
+                  <p
+                    key={inner.id}
+                    className="text-sm leading-relaxed text-slate-500"
+                  >
+                    {inner.data.text}
+                  </p>
+                );
+              }
+
+              if (inner.type === "image") {
+                const url = getPublicImageUrl(inner.data.path);
+                return (
+                  <figure key={inner.id} className="my-2">
+                    <img
+                      src={url}
+                      alt={inner.data.alt || ""}
+                      loading="lazy"
+                      className="w-full rounded-md"
+                    />
+                    {inner.data.alt && (
+                      <figcaption className="text-[11px] text-slate-500 mt-1">
+                        {inner.data.alt}
+                      </figcaption>
+                    )}
+                  </figure>
+                );
+              }
+
+              return null;
+            })}
+          </div>
+        ))}
+      </div>
+    </section>
   );
 }

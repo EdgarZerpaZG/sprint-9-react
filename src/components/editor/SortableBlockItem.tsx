@@ -32,6 +32,229 @@ export default function SortableBlockItem({
     opacity: isDragging ? 0.6 : 1,
   };
 
+  // ---------- Helpers para "columns" ----------
+
+  function ensureColumnsArray(
+    b: Extract<Block, { type: "columns" }>
+  ): { id: string; blocks: Block[] }[] {
+    const raw = (b.data as any).columns;
+    if (Array.isArray(raw)) return raw as { id: string; blocks: Block[] }[];
+    return [];
+  }
+
+  function handleAddColumn() {
+    onUpdate(block.id, (old) => {
+      if (old.type !== "columns") return old;
+
+      const cols = ensureColumnsArray(old);
+
+      if (cols.length >= 4) {
+        return old;
+      }
+
+      const newCol = {
+        id: crypto.randomUUID(),
+        blocks: [] as Block[],
+      };
+
+      return {
+        ...old,
+        data: {
+          ...(old.data as any),
+          columns: [...cols, newCol],
+        },
+      };
+    });
+  }
+
+  function handleRemoveColumn(colId: string) {
+    onUpdate(block.id, (old) => {
+      if (old.type !== "columns") return old;
+      const cols = ensureColumnsArray(old).filter((c) => c.id !== colId);
+      return {
+        ...old,
+        data: {
+          ...(old.data as any),
+          columns: cols,
+        },
+      };
+    });
+  }
+
+  function handleAddInnerBlock(
+    colId: string,
+    type: "heading" | "paragraph" | "image"
+  ) {
+    onUpdate(block.id, (old) => {
+      if (old.type !== "columns") return old;
+      const cols = ensureColumnsArray(old).map((col) => {
+        if (col.id !== colId) return col;
+
+        const newBlockId = crypto.randomUUID();
+        let newBlock: Block;
+
+        if (type === "heading") {
+          newBlock = {
+            id: newBlockId,
+            type: "heading",
+            data: { text: "", level: 2 },
+          };
+        } else if (type === "paragraph") {
+          newBlock = {
+            id: newBlockId,
+            type: "paragraph",
+            data: { text: "" },
+          };
+        } else {
+          newBlock = {
+            id: newBlockId,
+            type: "image",
+            data: { path: "", alt: "" },
+          };
+        }
+
+        return {
+          ...col,
+          blocks: [...col.blocks, newBlock],
+        };
+      });
+
+      return {
+        ...old,
+        data: {
+          ...(old.data as any),
+          columns: cols,
+        },
+      };
+    });
+  }
+
+  function handleUpdateInnerBlock(
+    colId: string,
+    innerId: string,
+    updater: (b: Block) => Block
+  ) {
+    onUpdate(block.id, (old) => {
+      if (old.type !== "columns") return old;
+      const cols = ensureColumnsArray(old).map((col) => {
+        if (col.id !== colId) return col;
+
+        return {
+          ...col,
+          blocks: col.blocks.map((b) =>
+            b.id === innerId ? updater(b) : b
+          ),
+        };
+      });
+
+      return {
+        ...old,
+        data: {
+          ...(old.data as any),
+          columns: cols,
+        },
+      };
+    });
+  }
+
+  function handleRemoveInnerBlock(colId: string, innerId: string) {
+    onUpdate(block.id, (old) => {
+      if (old.type !== "columns") return old;
+      const cols = ensureColumnsArray(old).map((col) => {
+        if (col.id !== colId) return col;
+
+        return {
+          ...col,
+          blocks: col.blocks.filter((b) => b.id !== innerId),
+        };
+      });
+
+      return {
+        ...old,
+        data: {
+          ...(old.data as any),
+          columns: cols,
+        },
+      };
+    });
+  }
+
+  function renderInnerBlockEditor(inner: Block, colId: string) {
+    return (
+      <div
+        key={inner.id}
+        className="border border-slate-800 bg-slate-950 rounded p-2 space-y-2"
+      >
+        <div className="flex items-center justify-between text-xs text-slate-500">
+          <span>{inner.type}</span>
+          <button
+            type="button"
+            onClick={() => handleRemoveInnerBlock(colId, inner.id)}
+            className="px-1.5 py-0.5 rounded bg-red-500/20 text-red-200"
+          >
+            Remove
+          </button>
+        </div>
+
+        {inner.type === "heading" && (
+          <input
+            type="text"
+            value={inner.data.text}
+            onChange={(e) =>
+              handleUpdateInnerBlock(colId, inner.id, (old) => {
+                if (old.type !== "heading") return old;
+                return {
+                  ...old,
+                  data: { ...old.data, text: e.target.value },
+                };
+              })
+            }
+            placeholder="Heading text..."
+            className="w-full bg-slate-950 border border-slate-800 rounded px-2 py-1 text-sm"
+          />
+        )}
+
+        {inner.type === "paragraph" && (
+          <RichTextBlockEditor
+            value={inner.data.text}
+            onChange={(newText) =>
+              handleUpdateInnerBlock(colId, inner.id, (old) => {
+                if (old.type !== "paragraph") return old;
+                return {
+                  ...old,
+                  data: { ...old.data, text: newText },
+                };
+              })
+            }
+          />
+        )}
+
+        {inner.type === "image" && (
+          <ImageBlockEditor
+            path={inner.data.path}
+            alt={inner.data.alt}
+            folder="home-columns"
+            onChange={({ path, alt }) =>
+              handleUpdateInnerBlock(colId, inner.id, (old) => {
+                if (old.type !== "image") return old;
+                return {
+                  ...old,
+                  data: {
+                    ...old.data,
+                    path,
+                    alt,
+                  },
+                };
+              })
+            }
+          />
+        )}
+      </div>
+    );
+  }
+
+  // ---------- RENDER PRINCIPAL ----------
+
   return (
     <div
       ref={setNodeRef}
@@ -63,7 +286,7 @@ export default function SortableBlockItem({
         </button>
       </div>
 
-      {/* Block editors */}
+      {/* Blocks simples */}
       {block.type === "heading" && (
         <input
           value={block.data.text}
@@ -117,6 +340,7 @@ export default function SortableBlockItem({
         />
       )}
 
+      {/* HERO block (editor completo) */}
       {block.type === "hero" && (
         <div className="space-y-3 mt-2">
           {/* Title */}
@@ -213,7 +437,7 @@ export default function SortableBlockItem({
                   })
                 }
                 className="w-full bg-slate-950 border border-slate-800 rounded px-2 py-1 text-xs"
-                placeholder="/adopt" 
+                placeholder="/adopt"
               />
             </div>
           </div>
@@ -267,6 +491,87 @@ export default function SortableBlockItem({
                 })
               }
             />
+          </div>
+        </div>
+      )}
+
+      {/* Columns block */}
+      {block.type === "columns" && (
+        <div className="space-y-3 mt-2">
+          <div className="flex items-center justify-between">
+            <p className="text-xs text-slate-400">
+              Columns block (hasta 4 columnas, sin drag interno de momento)
+            </p>
+
+            {ensureColumnsArray(block as any).length < 4 && (
+              <button
+                type="button"
+                onClick={handleAddColumn}
+                className="px-2 py-1 text-xs rounded bg-slate-800 hover:bg-slate-700"
+              >
+                + Add column
+              </button>
+            )}
+          </div>
+
+          <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
+            {ensureColumnsArray(block as any).map((col, colIndex) => (
+              <div
+                key={col.id}
+                className="border border-slate-800 rounded p-2 bg-slate-950/60 space-y-2"
+              >
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-slate-400">
+                    Column {colIndex + 1}
+                  </span>
+                  {ensureColumnsArray(block as any).length > 1 && (
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveColumn(col.id)}
+                      className="px-1.5 py-0.5 text-[11px] rounded bg-red-500/20 text-red-200"
+                    >
+                      Remove
+                    </button>
+                  )}
+                </div>
+
+                <div className="flex flex-wrap gap-1 mb-2">
+                  <button
+                    type="button"
+                    onClick={() => handleAddInnerBlock(col.id, "heading")}
+                    className="px-2 py-0.5 text-[11px] rounded bg-slate-800 hover:bg-slate-700"
+                  >
+                    + Heading
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleAddInnerBlock(col.id, "paragraph")}
+                    className="px-2 py-0.5 text-[11px] rounded bg-slate-800 hover:bg-slate-700"
+                  >
+                    + Paragraph
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleAddInnerBlock(col.id, "image")}
+                    className="px-2 py-0.5 text-[11px] rounded bg-slate-800 hover:bg-slate-700"
+                  >
+                    + Image
+                  </button>
+                </div>
+
+                <div className="space-y-2">
+                  {col.blocks.length === 0 && (
+                    <p className="text-xs text-slate-500">
+                      No blocks in this column yet.
+                    </p>
+                  )}
+
+                  {col.blocks.map((inner) =>
+                    renderInnerBlockEditor(inner, col.id)
+                  )}
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       )}

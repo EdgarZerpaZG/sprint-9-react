@@ -83,6 +83,29 @@ export function useHomeEditor() {
       return;
     }
 
+    if (type === "columns") {
+      setBlocks((prev) => [
+        ...prev,
+        {
+          id: crypto.randomUUID(),
+          type: "columns",
+          data: {
+            columns: [
+              {
+                id: crypto.randomUUID(),
+                blocks: [],
+              },
+              {
+                id: crypto.randomUUID(),
+                blocks: [],
+              },
+            ],
+          },
+        } as Block,
+      ]);
+      return;
+    }
+
     if (type === "heading") {
       setBlocks((prev) => [
         ...prev,

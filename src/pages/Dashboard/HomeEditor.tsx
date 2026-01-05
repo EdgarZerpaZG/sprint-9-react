@@ -36,7 +36,7 @@ export default function HomeEditor() {
         <div>
           <h1 className="text-2xl font-semibold">Home content</h1>
           <p className="text-sm text-slate-400">
-            Design the public home using blocks (hero, headings, text, images).
+            Design the public home using blocks (hero, headings, text, images, columns).
           </p>
         </div>
 
@@ -71,6 +71,15 @@ export default function HomeEditor() {
               className="px-2 py-1 text-xs rounded bg-emerald-600 hover:bg-emerald-500"
             >
               + Hero
+            </button>
+
+            {/* COLUMNS */}
+            <button
+              type="button"
+              onClick={() => addBlock("columns")}
+              className="px-2 py-1 text-xs rounded bg-slate-800 hover:bg-slate-700"
+            >
+              + Columns
             </button>
 
             <button
