@@ -94,13 +94,6 @@ export default function Home() {
 
   return (
     <main className="max-w-4xl mx-auto px-4 py-10 space-y-6">
-      <header className="space-y-2">
-        <h1 className="text-3xl font-bold">Animal Shelter</h1>
-        <p className="text-slate-500 text-sm">
-          Welcome to our shelter website.
-        </p>
-      </header>
-
       <section className="prose prose-slate max-w-none">
         <BlocksRenderer blocks={home.blocks ?? []} />
       </section>

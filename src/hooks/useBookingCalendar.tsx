@@ -55,19 +55,38 @@ export function useBookingCalendar(resource: string) {
     setSelectInfo({ startStr: startISO, endStr: endISO });
   }, []);
 
-  const handleEventClick = useCallback((clickInfo: EventClickArg) => {
-    const { event } = clickInfo;
-    const ep = event.extendedProps as any;
+  const handleEventClick = useCallback(
+    (clickInfo: EventClickArg) => {
+      const { event } = clickInfo;
+      const ep = event.extendedProps as any;
+      const isOwner = ep?.isOwner ?? false;
 
-    setEditingEvent({
-      id: event.id,
-      title: event.title,
-      start: event.start ? DateTime.fromJSDate(event.start).toISO() ?? "" : "",
-      end: event.end ? DateTime.fromJSDate(event.end).toISO() ?? "" : "",
-      profileId: ep?.profileId ?? null,
-      isOwner: ep?.isOwner ?? false,
-    });
-  }, []);
+      console.log("[handleEventClick]", {
+        isAdmin,
+        isOwner,
+        ep,
+        eventId: event.id,
+      });
+
+      if (!isAdmin && !isOwner) {
+        return;
+      }
+
+      setEditingEvent({
+        id: event.id,
+        title: event.title,
+        start: event.start
+          ? DateTime.fromJSDate(event.start).toISO() ?? ""
+          : "",
+        end: event.end
+          ? DateTime.fromJSDate(event.end).toISO() ?? ""
+          : "",
+        profileId: ep?.profileId ?? null,
+        isOwner,
+      });
+    },
+    [isAdmin]
+  );
 
   const handleEventChange = useCallback(
     async (arg: any) => {

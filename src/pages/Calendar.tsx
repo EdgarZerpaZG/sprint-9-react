@@ -5,7 +5,7 @@ export default function Calendar() {
         <>
              <main className="flex justify-center items-center h-full">
                 <section>
-                    <h2 className="text-center">CALENDAR</h2>
+                    <h2 className="text-center uppercase">Appointment schedule</h2>
                     <BookingCalendar resource="consultorio-A" />
                 </section>
             </main>
