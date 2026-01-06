@@ -1,9 +1,6 @@
 import { useState, useMemo, useCallback } from "react";
 import { DateTime } from "luxon";
-import type {
-  DateSelectArg,
-  EventClickArg,
-} from "@fullcalendar/core";
+import type {DateSelectArg, EventClickArg} from "@fullcalendar/core";
 import { useBookings } from "./useBooking";
 import { supabase } from "../lib/supabaseClient";
 import { useAuth } from "./useAuth";

@@ -1,11 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "../../../../lib/supabaseClient";
 import { Slugify } from "../../../../utils/slugify";
-import type {
-  Block,
-  ContentStatus,
-  PostRow, // 👈 asegúrate de tener este tipo definido
-} from "../../../../types/contentTypes";
+import type {Block, ContentStatus, PostRow} from "../../../../types/contentTypes";
 
 const emptyBlocks: Block[] = [];
 
@@ -25,7 +21,6 @@ export function usePostEditor(postId?: string) {
   const [blocks, setBlocks] = useState<Block[]>(emptyBlocks);
   const [coverPath, setCoverPath] = useState<string | null>(null);
 
-  // Load existing post if editing
   useEffect(() => {
     let alive = true;
 
@@ -68,7 +63,6 @@ export function usePostEditor(postId?: string) {
     };
   }, [postId]);
 
-  // Auto slug from title (only for new posts)
   const computedSlug = useMemo(() => Slugify(title), [title]);
 
   useEffect(() => {

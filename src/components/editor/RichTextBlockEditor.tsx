@@ -5,12 +5,7 @@ import { ContentEditable } from "@lexical/react/LexicalContentEditable";
 import { HistoryPlugin } from "@lexical/react/LexicalHistoryPlugin";
 import { OnChangePlugin } from "@lexical/react/LexicalOnChangePlugin";
 import { LexicalErrorBoundary } from "@lexical/react/LexicalErrorBoundary";
-import {
-  $getRoot,
-  $createParagraphNode,
-  $createTextNode,
-  type EditorState,
-} from "lexical";
+import {$getRoot, $createParagraphNode, $createTextNode, type EditorState} from "lexical";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 
 type Props = {
@@ -26,7 +21,6 @@ function onError(error: Error) {
   console.error("[Lexical] Editor error:", error);
 }
 
-// This plugin sets the initial text once when the editor mounts
 function InitialTextPlugin({ text }: { text: string }) {
   const [editor] = useLexicalComposerContext();
   const initializedRef = useRef(false);

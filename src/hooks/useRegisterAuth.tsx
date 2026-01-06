@@ -47,21 +47,6 @@ export function useRegisterForm(onSuccess?: () => void) {
     }
 
     try {
-    //   const { data: existing, error: existingError } = await supabase
-    //     .from("users")
-    //     .select("*")
-    //     .or(`username.eq.${username},email.eq.${email}`);
-
-    //   if (existingError) {
-    //     console.error("Error checking existing user:", existingError);
-    //   }
-
-    //   if (existing && existing.length > 0) {
-    //     setMessage("The username or email address is already registered.");
-    //     setLoading(false);
-    //     return;
-    //   }
-
       const { error } = await supabase.auth.signUp({
         email,
         password,

@@ -22,11 +22,7 @@ export function usePublicPages({ page = 1, pageSize = 10 }: UsePublicPagesOption
 
       const from = (page - 1) * pageSize;
       const to = from + pageSize - 1;
-
-      // Important: we DO NOT filter by status here.
-      // RLS decides:
-      // - public / user => only published
-      // - editor/admin => all pages
+      
       const { data, error, count } = await supabase
         .from("pages")
         .select("*", { count: "exact" })

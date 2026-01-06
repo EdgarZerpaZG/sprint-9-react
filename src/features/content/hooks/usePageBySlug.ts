@@ -1,4 +1,3 @@
-// src/features/content/hooks/usePageBySlug.ts
 import { useEffect, useState } from "react";
 import { supabase } from "../../../lib/supabaseClient";
 import type { PageRow } from "../../../types/contentTypes";

@@ -88,7 +88,7 @@ export type SeoData = {
   keywords?: string[];
 };
 
-// Page row (tal como lo tienes en Supabase)
+// Page row
 export type PageRow = {
   id: string;
   author_id: string;
@@ -104,7 +104,7 @@ export type PageRow = {
   published_at: string | null;
 };
 
-// Post row (hereda de PageRow con categoría opcional)
+// Post row
 export type PostRow = PageRow & {
   category?: string | null;
 };

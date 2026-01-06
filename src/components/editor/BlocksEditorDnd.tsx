@@ -1,13 +1,5 @@
-import {
-  DndContext,
-  closestCenter,
-  type DragEndEvent,
-} from "@dnd-kit/core";
-import {
-  SortableContext,
-  verticalListSortingStrategy,
-  arrayMove,
-} from "@dnd-kit/sortable";
+import {DndContext, closestCenter, type DragEndEvent} from "@dnd-kit/core";
+import {SortableContext, verticalListSortingStrategy, arrayMove} from "@dnd-kit/sortable";
 import { useMemo } from "react";
 import type { Block } from "../../types/contentTypes";
 import SortableBlockItem from "./SortableBlockItem";

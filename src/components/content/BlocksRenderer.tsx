@@ -1,8 +1,4 @@
-import type {
-  Block,
-  HeroBlock,
-  ColumnsBlock,
-} from "../../types/contentTypes";
+import type {Block, HeroBlock, ColumnsBlock} from "../../types/contentTypes";
 import { getPublicImageUrl } from "../../utils/images";
 
 type Props = {
@@ -17,8 +13,6 @@ export default function BlocksRenderer({ blocks }: Props) {
   return (
     <div className="space-y-6">
       {blocks.map((block) => {
-        // DEBUG opcional (puedes comentar esto si molesta):
-        // console.log("[BlocksRenderer] block:", block);
 
         // HEADING
         if (block.type === "heading") {
@@ -82,7 +76,6 @@ export default function BlocksRenderer({ blocks }: Props) {
  * HERO SECTION
  */
 function HeroSection({ block }: { block: HeroBlock }) {
-  // Fallback para datos antiguos que puedan tener data.text
   const rawData: any = block.data ?? {};
 
   const title: string =
@@ -94,16 +87,6 @@ function HeroSection({ block }: { block: HeroBlock }) {
   const align: "left" | "center" | "right" | undefined = rawData.align;
   const backgroundImagePath: string | null | undefined =
     rawData.backgroundImagePath;
-
-  // DEBUG opcional
-  // console.log("[HeroSection] data:", {
-  //   title,
-  //   subtitle,
-  //   buttonLabel,
-  //   buttonUrl,
-  //   align,
-  //   backgroundImagePath,
-  // });
 
   const bgUrl =
     backgroundImagePath && backgroundImagePath !== ""
