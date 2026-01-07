@@ -1,15 +1,16 @@
 # IT Academy – Sprint N°9: React Project
 
-## 🌐 Content Manager System App
+## 🌐 Animal Shelter CMS App
 
-This project is a **React (Vite) application** focused on learning how to connect a frontend to different **databases and cloud APIs**.
+This project is a **React (Vite) application** that evolves the previous sprint into a more complete **Content Management System** for an animal shelter.
 
-It includes:
+It focuses on:
 
-- A **User admin panel (CRUD)** connected to **MongoDB**.
-- A **booking calendar** powered by **FullCalendar** with data stored and validated in **Supabase**.
-- Integration with **Google Maps JavaScript API** (from Google Cloud) to display location data.
-- Several **charts with Chart.js** to visualise data from the app.
+- A **public website** (home, pages, posts, calendar).
+- An **admin dashboard** with different roles (**user, editor, admin**).
+- A **booking system** for veterinary appointments using **FullCalendar**.
+- A **block-based home builder** similar to a lightweight page builder (hero, columns, images, etc.).
+- Authentication, authorization and storage powered by **Supabase**.
 
 ---
 
@@ -17,54 +18,129 @@ It includes:
 
 The main goals of this sprint are:
 
-- Understand how to use **different data sources** (MongoDB, Supabase, Google Maps API) in a React app.
-- Gain hands-on experience with a **modern frontend stack** and **real databases**.
-- Learn how to handle **dynamic data**, maps, and user sessions in a single dashboard.
-- Practice **automated testing** of components and main flows with Vitest + React Testing Library.
+- Learn how to build a **small CMS** on top of Supabase using React + TypeScript.
+- Work with **roles and permissions** (public user, authenticated user, editor, admin).
+- Manage **dynamic content** (pages, posts, home layout) through a dashboard.
+- Implement a **calendar booking system** backed by PostgreSQL and RLS policies.
 
 ---
 
 ## 🧠 Key Features
 
-### 👤 User Management (MongoDB)
+### 🏠 Public Site & Home Builder
 
-- **User CRUD** (Create, Read, Update, Delete) using a Node/Express backend and **MongoDB**.
-- `UserForm` component:
-  - Used both for creating and editing a user.
-  - Controlled inputs for `username`, `name`, `lastname`, `email`, `location`.
-- `UserTable` component:
-  - Displays all users from MongoDB.
-  - Buttons to **Edit** (pre-filling the form) and **Delete** users.
-- The backend connects to MongoDB using a connection string (`MONGO_URI`) and database name (`MONGO_DB_NAME`).
+- Public routes:
+  - `/` – Home
+  - `/calendar` – Booking calendar
+  - `/pages` & `/pages/:slug`
+  - `/posts` & `/posts/:slug`
+  - `/login`, `/register`, `/emailconfirmation`, `/profile`
+- Home page powered by a dedicated `home_content` table in Supabase:
+  - **Hero block** with title, subtitle, button and optional background image.
+  - **Heading**, **paragraph** and **image** blocks.
+  - **Columns block** with up to 4 columns, each containing its own inner blocks.
+- Custom block system:
+  - Drag & drop using **dnd-kit**.
+  - Block editor for each type (hero, image with upload, rich text, etc.).
+  - Home is edited from the dashboard and rendered on the public `/`.
 
-### 📅 Bookings Calendar (Supabase + FullCalendar)
+### ✏️ Pages & Posts Management (Dashboard)
 
-- Booking system built with **FullCalendar React component**.
-- Each booking is linked to:
-  - `user_id` (Supabase Auth user)
-  - `resource` (e.g. `consultorio-A`)
-  - `start_time` / `end_time`
-- Data storage and realtime notifications managed by **Supabase** (Postgres + Realtime). :contentReference[oaicite:1]{index=1}  
-- A PostgreSQL function `is_available` checks if a time slot is free before creating or updating a booking.
-- **Booking modal**:
-  - Create, edit and delete bookings.
-  - Shows clear error messages when the time slot is already taken or the user is not logged in.
+- Separate management for:
+  - **Pages** (`pages` table).
+  - **Posts** (sharing the same structure as pages with an optional category).
+- Common features:
+  - Title, slug, excerpt, SEO fields.
+  - Blocks array stored as `jsonb`.
+  - Cover image path stored in Supabase Storage.
+- Only **editors** and **admins** can access the content management section of the dashboard.
 
-### 🗺️ Google Maps Integration (Google Cloud)
+### 🧱 Block System & Editors
 
-- Integration with **Google Maps JavaScript API** to display maps and locations.
-- The API key is created and managed from **Google Cloud Console**, where the Maps JavaScript API is enabled for the project.
-- The key is loaded using environment variables and should be **restricted** in Google Cloud (HTTP referrers, quotas, etc).
+- Shared `Block` types defined in `contentTypes`:
+  - `heading`, `paragraph`, `image`, `richtext`, `hero`, `columns`.
+- **BlocksEditorDnd**:
+  - Drag & drop ordering.
+  - Add / remove blocks.
+  - Block-level editors:
+    - `Hero` editor with alignment, button label/URL and background image.
+    - `Image` editor with upload to Supabase Storage (max size limit, lazy loading).
+    - `Paragraph` using a rich text editor (Lexical-based) for better formatting.
+- **BlocksRenderer**:
+  - Renders the JSON structure into styled HTML on the public site.
+  - Supports nested blocks inside columns.
 
-### 📊 Charts & Data Visualisation (Chart.js)
+### 📅 Booking Calendar (Supabase + FullCalendar)
 
-- Visualisation of key metrics using **Chart.js**, integrated with React. 
+- Appointment system using **FullCalendar** + **Luxon**:
+  - Weekly and monthly views.
+  - Time slots between 07:00 and 20:00 (no all-day slots).
+- **Bookings** stored in the `bookings` table in Supabase:
+  - `user_id`, `resource`, `title`, `start_time`, `end_time`, `profile_id`.
+- A PostgreSQL function `is_available` validates that a time slot is free before:
+  - Creating a booking.
+  - Updating or moving a booking (drag & drop / resize).
+- Realtime updates:
+  - Supabase Realtime channel listens to `INSERT`, `UPDATE`, `DELETE` on `bookings`.
+  - Calendar updates automatically across open clients.
+
+#### Booking Permissions
+
+- **Normal user**:
+  - Can create, edit and delete **only their own** bookings.
+  - Cannot drag / resize or open the modal for other users’ bookings.
+- **Admin**:
+  - Can see and manage **all** bookings.
+  - Can drag / resize any event.
+  - Special rules enforced via:
+    - React hooks (`useBookingCalendar`, `useBookingModal`).
+    - Supabase Row Level Security (RLS) policies on `bookings`.
+
+### 👥 Users, Roles & Admin Area
+
+- Custom `users` table linked to `auth.users`:
+  - `id`, `username`, `email`, `role` (`user`, `editor`, `admin`), `created_at`.
+  - Constraint to ensure the role is always one of the allowed values.
+- `admins` table:
+  - Stores the IDs of users that are considered platform admins.
+  - Used by the `useIsAdmin` hook to quickly check if the current user is an admin.
+- Roles in the app:
+  - **user** – standard authenticated user:
+    - Can manage their own bookings.
+    - Can view public content.
+  - **editor** – content editor:
+    - Can access the dashboard to manage **home, pages, posts**.
+    - Cannot access user management.
+  - **admin** – full administrator:
+    - Everything an editor can do.
+    - Access to **User Management**.
+    - Can manage all bookings.
+- Routes protection:
+  - `RequireAuth` protects the whole dashboard.
+  - `RequireRole` used both at dashboard level and on specific routes:
+    - `/dashboard` – `editor` or `admin`.
+    - `/dashboard/users` – **admin only**.
+
+### 👤 User Management (Admin)
+
+- `UserManagement` page under `/dashboard/users`:
+  - Accessible only for admins (via `RequireRole`).
+  - Planned features for CRUD:
+    - List all users from the `users` table.
+    - Change user role (`user`, `editor`, `admin`).
+    - Enable / disable users (soft disable so data stays in Supabase).
+    - (Later) invite users via email using Supabase auth (magic link / invite flow).
+- For now, admin assignment can also be done manually by inserting rows into `admins`.
 
 ### 🔐 Authentication & Storage (Supabase)
 
-- User registration and login handled with **Supabase Auth**. :contentReference[oaicite:4]{index=4}  
-- Bookings are linked to the authenticated user via `user_id`.
-- Supabase Storage can be used to store and serve user images or other files. :contentReference[oaicite:5]{index=5}  
+- Auth:
+  - Login and register flow using Supabase Auth (`/login`, `/register`).
+  - Email confirmation flow (`/emailconfirmation`).
+- Storage:
+  - Image uploads (e.g. home hero background, image blocks, cover images) to Supabase Storage.
+  - RLS storage policies so that only editors/admins can upload content images through the dashboard.
+  - Images are rendered publicly with lazy loading for performance.
 
 ---
 
@@ -73,16 +149,15 @@ The main goals of this sprint are:
 - ⚛️ **React** (Vite)
 - 🧩 **TypeScript**
 - 💅 **Tailwind CSS** for styling
-- 💾 **MongoDB** for User CRUD (Node/Express backend)
 - 💾 **Supabase**
-  - Auth
+  - Auth (email-based registration & login)
   - Database (PostgreSQL)
-  - Realtime (bookings)
-  - Storage
+  - Realtime (bookings updates)
+  - Storage (images for content)
 - 📅 **FullCalendar** + **Luxon** for calendar UI and date/time handling
-- 🗺️ **Google Maps JavaScript API** (Google Cloud)
-- 📊 **Chart.js** (and React bindings) for charts
-- 🧪 **Vitest & React Testing Library** for testing
+- 🧱 **dnd-kit** for drag & drop blocks
+- ✍️ **Lexical** as rich text editor foundation
+- 🧪 **Vitest & React Testing Library** (planned tests for core flows)
 
 ---
 
@@ -90,12 +165,12 @@ The main goals of this sprint are:
 
 1. Clone this repository:
 ```
-git clone https://github.com/EdgarZerpaZG/sprint-8-react.git
+git clone https://github.com/EdgarZerpaZG/sprint-9-react.git
 ```
 
 2. Navigate to the project directory:
 ```
-cd sprint-8-react
+cd sprint-9-react
 ```
 
 3. Run in the terminal:
@@ -108,24 +183,21 @@ npm run dev
 - Example: http://localhost:5173/
 
 
-5. Navigate to the backend directory:
-```
-sprint-8-react/ cd backend
-```
+5. Configure environment variables in a .env file (Vite style), for example:
+VITE_SUPABASE_URL=your_supabase_project_url
+VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
 
-6. Run in the terminal:
-```
-npm install
-npm run dev
-```
 
-7. Open the localhost url:
-- Example: http://localhost:4000/
+6. Make sure your Supabase project has the required tables:
+- home_content
+- pages
+- booking
+- users
+- admins
+- The is_available PostgreSQL function and RLS policies for each table.
+
 
 5. Additional feature with Testing(Vitest and React Testing), open the terminal and run:
 ```
 sprint-8-react/ npm run test
-```
-```
-backend/ npm run test
 ```
