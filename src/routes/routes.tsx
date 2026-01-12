@@ -24,12 +24,13 @@ import HomeEditor from "../pages/Dashboard/HomeEditor";
 
 import DashboardLayout from "../layout/DashboardLayout";
 
-import CalendarManagement from "../pages/Dashboard/CalendarManagement";
 import PagesManagement from "../pages/Dashboard/PagesManagement";
 import PostsManagement from "../pages/Dashboard/PostsManagement";
 
 import PageEditor from "../pages/Dashboard/PageEditor";
 import PostEditor from "../pages/Dashboard/PostEditor";
+
+import FooterEditor from "../pages/Dashboard/FooterEditor";
 
 export default function PagesRoutes() {
   return (
@@ -38,10 +39,13 @@ export default function PagesRoutes() {
       <Route element={<PublicLayout />}>
         <Route path="/" element={<Home />} />
         <Route path="/calendar" element={<Calendar />} />
+
         <Route path="/pages" element={<Pages />} />
         <Route path="/pages/:slug" element={<PageDetail />} />
+
         <Route path="/posts" element={<Posts />} />
         <Route path="/posts/:slug" element={<PostDetail />} />
+
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/emailconfirmation" element={<EmailConfirmation />} />
@@ -59,32 +63,29 @@ export default function PagesRoutes() {
           </RequireAuth>
         }
       >
-      {/* /dashboard */}
-      <Route index element={<Dashboard />} />
+        <Route index element={<Dashboard />} />
 
-      {/* /dashboard/home */}
-      <Route path="home-management" element={<HomeManagement />} />
-      <Route path="home-management/edit" element={<HomeEditor />} />
+        <Route path="home-management" element={<HomeManagement />} />
+        <Route path="home-management/edit" element={<HomeEditor />} />
 
-      {/* /dashboard/calendar */}
-      <Route path="calendar-management" element={<CalendarManagement />} />
+        <Route
+          path="users"
+          element={
+            <RequireRole allowedRoles={["admin"]}>
+              <UserManagement />
+            </RequireRole>
+          }
+        />
 
-      {/* /dashboard/users (admin only) */}
-      <Route path="users" element={
-        <RequireRole allowedRoles={["admin"]}>
-          <UserManagement />
-        </RequireRole>}
-      />
+        <Route path="pages-management" element={<PagesManagement />} />
+        <Route path="pages/new" element={<PageEditor />} />
+        <Route path="pages/:id" element={<PageEditor />} />
 
-      {/* PAGES MANAGEMENT */}
-      {/* /dashboard/pages */}
-      <Route path="pages-management" element={<PagesManagement />} />
-      <Route path="pages/new" element={<PageEditor />} />
-      <Route path="pages/:id" element={<PageEditor />} />
+        <Route path="posts-management" element={<PostsManagement />} />
+        <Route path="posts/new" element={<PostEditor />} />
+        <Route path="posts/:id" element={<PostEditor />} />
 
-      <Route path="posts-management" element={<PostsManagement />} />
-      <Route path="posts/new" element={<PostEditor />} />
-      <Route path="posts/:id" element={<PostEditor />} />
+        <Route path="footer-management" element={<FooterEditor />} />
       </Route>
 
       <Route path="/access-denied" element={<AccessDenied />} />

@@ -1,11 +1,16 @@
+import { useState } from "react";
 import { NavLink, Outlet } from "react-router-dom";
 import { useUserRole } from "../hooks/useUserRole";
 import DashboardTop from "../components/Dashboard/DashboardTop";
+import { usePagesNavTree } from "../hooks/usePagesNavTree";
+import { Menu, X } from "lucide-react";
 
 export default function DashboardLayout() {
   const { role, loadingRole } = useUserRole();
+  const { tree, loading: loadingPages } = usePagesNavTree();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  if (loadingRole) {
+  if (loadingRole || loadingPages) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-950 text-slate-100">
         <p>Loading dashboard...</p>
@@ -18,10 +23,28 @@ export default function DashboardLayout() {
   const linkActive = "bg-emerald-500/20 text-emerald-200";
   const linkIdle = "hover:bg-slate-800 text-slate-200";
 
+  const navClass = ({ isActive }: { isActive: boolean }) =>
+    [linkBase, isActive ? linkActive : linkIdle].join(" ");
+
+  const handleNavClick = () => {
+    setSidebarOpen(false);
+  };
+
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100">
+      {/* Overlay móvil */}
+      {sidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black/40 z-30 lg:hidden"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
       {/* Sidebar */}
-      <aside className="w-64 bg-slate-900 border-r border-slate-800 fixed inset-y-0 left-0">
+      <aside
+        className={`w-64 bg-slate-900 border-r border-slate-800 fixed inset-y-0 left-0 transform transition-transform duration-200 z-40
+        ${sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}`}
+      >
         {/* Brand */}
         <div className="px-4 py-5 border-b border-slate-800">
           <p className="text-xs uppercase tracking-widest text-slate-400">
@@ -31,91 +54,144 @@ export default function DashboardLayout() {
         </div>
 
         {/* Nav */}
-        <nav className="p-3 space-y-1">
+        <nav className="p-3 space-y-1 overflow-y-auto h-[calc(100vh-64px)]">
           {/* Core */}
           <p className="px-3 pt-2 text-xs uppercase tracking-widest text-slate-500">
             Core
           </p>
 
-          <NavLink
-            to=""
-            end
-            className={({ isActive }) =>
-              [linkBase, isActive ? linkActive : linkIdle].join(" ")}>
-            Overview
-          </NavLink>
-
-          <NavLink
-            to="home-management"
-            className={({ isActive }) =>
-              [linkBase, isActive ? linkActive : linkIdle].join(" ")}>
-            Home
-          </NavLink>
-
-          <NavLink
-            to="calendar-management"
-            className={({ isActive }) =>
-              [linkBase, isActive ? linkActive : linkIdle].join(" ")}>
-            Bookings
-          </NavLink>
-
           {/* Admin only */}
           {role === "admin" && (
             <NavLink
               to="users"
-              className={({ isActive }) =>
-                [linkBase, isActive ? linkActive : linkIdle].join(" ")}>
+              className={navClass}
+              onClick={handleNavClick}
+            >
               Users
             </NavLink>
           )}
 
+          {/* Pages list */}
+          <NavLink
+            to="pages-management"
+            className={navClass}
+            onClick={handleNavClick}
+          >
+            Pages
+          </NavLink>
+
           {/* Content */}
-          <div className="pt-3 mt-3 border-t border-slate-800">
+          <div className="pt-3 mt-3 border-t border-slate-800 space-y-2">
             <p className="px-3 text-xs uppercase tracking-widest text-slate-500">
               Content
             </p>
 
-            <NavLink
-              to="pages-management"
-              className={({ isActive }) =>
-                [linkBase, isActive ? linkActive : linkIdle].join(" ")}>
-              Pages
-            </NavLink>
+            {/* HOME */}
+            {tree.home && (
+              <NavLink
+                to={`pages/${tree.home.id}`}
+                className={navClass}
+                onClick={handleNavClick}
+              >
+                Home
+              </NavLink>
+            )}
 
-            <NavLink
-              to="posts-management"
-              className={({ isActive }) =>
-                [linkBase, isActive ? linkActive : linkIdle].join(" ")}>
-              Posts
-            </NavLink>
+            {/* COLLECTIONS + CONTENT */}
+            {tree.collections.length > 0 && (
+              <div className="space-y-1">
+                <p className="px-3 text-[11px] uppercase tracking-widest text-slate-500">
+                  Collections
+                </p>
 
-            <NavLink
-              to="media-management"
-              className={({ isActive }) =>
-                [linkBase, isActive ? linkActive : linkIdle].join(" ")}>
-              Media (soon)
-            </NavLink>
-          </div>
+                {tree.collections.map((col) => (
+                  <div key={col.id} className="ml-1">
+                    {/* Link to the collection itself */}
+                    <NavLink
+                      to={`pages/${col.id}`}
+                      className={navClass}
+                      onClick={handleNavClick}
+                    >
+                      {col.title}
+                    </NavLink>
 
-          {/* Settings placeholder */}
-          <div className="pt-3 mt-3 border-t border-slate-800">
-            <p className="px-3 text-xs uppercase tracking-widest text-slate-500">
-              System
-            </p>
+                    {/* Children of type content */}
+                    {col.children.length > 0 && (
+                      <div className="ml-3 mt-1 border-l border-slate-800 pl-2 space-y-1">
+                        {col.children.map((child) => (
+                          <NavLink
+                            key={child.id}
+                            to={`pages/${child.id}`}
+                            className={navClass}
+                            onClick={handleNavClick}
+                          >
+                            · {child.title}
+                          </NavLink>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
 
-            <NavLink
-              to="settings"
-              className={({ isActive }) =>
-                [linkBase, isActive ? linkActive : linkIdle].join(" ")}>
-              Settings (soon)
-            </NavLink>
+            {/* MAIN PAGES */}
+            {tree.mains.length > 0 && (
+              <div className="space-y-1">
+                <p className="px-3 text-[11px] uppercase tracking-widest text-slate-500">
+                  Main pages
+                </p>
+                {tree.mains.map((page) => (
+                  <NavLink
+                    key={page.id}
+                    to={`pages/${page.id}`}
+                    className={navClass}
+                    onClick={handleNavClick}
+                  >
+                    {page.title}
+                  </NavLink>
+                ))}
+              </div>
+            )}
+
+            {/* FOOTER */}
+            {tree.footer && (
+              <div className="space-y-1 pt-2 border-t border-slate-800 mt-2">
+                <p className="px-3 text-[11px] uppercase tracking-widest text-slate-500">
+                  Layout
+                </p>
+                <NavLink
+                  to={`pages/${tree.footer.id}`}
+                  className={navClass}
+                  onClick={handleNavClick}
+                >
+                  Footer
+                </NavLink>
+              </div>
+            )}
           </div>
         </nav>
       </aside>
 
-      {/* Content area */}
-      <div className="ml-64 min-h-screen">
+      <div className="min-h-screen lg:ml-64">
+        <div className="lg:hidden flex items-center justify-between px-4 py-3 border-b border-slate-800 bg-slate-950 sticky top-0 z-20">
+          <button
+            type="button"
+            onClick={() => setSidebarOpen((prev) => !prev)}
+            className="inline-flex items-center justify-center rounded-md border border-slate-700 px-2.5 py-1.5 text-slate-100 hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+          >
+            {sidebarOpen ? (
+              <X className="w-5 h-5" />
+            ) : (
+              <Menu className="w-5 h-5" />
+            )}
+          </button>
+          <span className="text-sm font-semibold">Animal Shelter CMS</span>
+        </div>
+
+        {/* Dasboard Top */}
         <DashboardTop />
+
         <main className="p-6">
           <Outlet />
         </main>

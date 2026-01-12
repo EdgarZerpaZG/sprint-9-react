@@ -6,19 +6,25 @@ export type BlockType =
   | "image"
   | "richtext"
   | "hero"
-  | "columns";
+  | "columns"
+  | "divider";
 
 export type BlockBase = {
   id: string;
   type: BlockType;
 };
 
+/* ──────────────────────────────
+   Basic block
+   ────────────────────────────── */
+
 // Heading block
 export type HeadingBlock = BlockBase & {
   type: "heading";
   data: {
     text: string;
-    level: 1 | 2 | 3;
+    level: 1 | 2 | 3 | 4 | 5 | 6;
+    align?: "left" | "center" | "right";
   };
 };
 
@@ -47,7 +53,16 @@ export type RichTextBlock = BlockBase & {
   };
 };
 
-// Hero block
+// Divider Block
+export type DividerBlock = BlockBase & {
+  type: "divider";
+  data: {};
+};
+
+/* ──────────────────────────────
+   Hero Block
+   ────────────────────────────── */
+
 export type HeroBlock = BlockBase & {
   type: "hero";
   data: {
@@ -60,13 +75,15 @@ export type HeroBlock = BlockBase & {
   };
 };
 
-// Column item
+/* ──────────────────────────────
+   Columns Block
+   ────────────────────────────── */
+
 export type ColumnItem = {
   id: string;
   blocks: Block[];
 };
 
-// Columns block
 export type ColumnsBlock = BlockBase & {
   type: "columns";
   data: {
@@ -74,13 +91,22 @@ export type ColumnsBlock = BlockBase & {
   };
 };
 
+/* ──────────────────────────────
+   Blocks
+   ────────────────────────────── */
+
 export type Block =
   | HeadingBlock
   | ParagraphBlock
   | ImageBlock
   | RichTextBlock
   | HeroBlock
-  | ColumnsBlock;
+  | ColumnsBlock
+  | DividerBlock;
+
+/* ──────────────────────────────
+   SEO
+   ────────────────────────────── */
 
 export type SeoData = {
   title?: string;
@@ -88,7 +114,21 @@ export type SeoData = {
   keywords?: string[];
 };
 
-// Page row
+/* ──────────────────────────────
+   Pages types
+   ────────────────────────────── */
+
+export type PageType =
+  | "home"
+  | "main"
+  | "collection"
+  | "content"
+  | "footer";
+
+/* ──────────────────────────────
+   Supabase
+   ────────────────────────────── */
+
 export type PageRow = {
   id: string;
   author_id: string;
@@ -96,15 +136,17 @@ export type PageRow = {
   slug: string;
   excerpt: string | null;
   status: ContentStatus;
+  type: PageType;
+  parent_collection_id: string | null;
   blocks: Block[];
   seo: SeoData;
   cover_image_path: string | null;
   created_at: string;
   updated_at: string;
   published_at: string | null;
+  show_title?: boolean;
 };
 
-// Post row
 export type PostRow = PageRow & {
   category?: string | null;
 };

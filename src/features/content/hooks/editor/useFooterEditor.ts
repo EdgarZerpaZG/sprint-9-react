@@ -1,27 +1,26 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../../../../lib/supabaseClient";
-import type { Block } from "../../../../types/contentTypes";
 import { addBlockToList } from "../../utils/blocks";
+import type {
+  Block,
+  ContentStatus,
+  PageRow,
+} from "../../../../types/contentTypes";
 
-type ContentStatus = "draft" | "published";
+type FooterRow = PageRow;
 
-type HomeRow = {
-  id: string;
-  status: ContentStatus;
-  blocks: Block[];
-  updated_at: string;
-  last_editor_id: string | null;
-};
-
-export function useHomeEditor() {
+export function useFooterEditor() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const [rowId, setRowId] = useState<string | null>(null);
-  const [status, setStatus] = useState<ContentStatus>("published");
+  const [pageId, setPageId] = useState<string | null>(null);
+  const [status, setStatus] = useState<ContentStatus>("draft");
   const [blocks, setBlocks] = useState<Block[]>([]);
   const [updatedAt, setUpdatedAt] = useState<string | null>(null);
+
+  const [title, setTitle] = useState("Footer");
+  const [excerpt, setExcerpt] = useState("");
 
   useEffect(() => {
     let alive = true;
@@ -31,27 +30,32 @@ export function useHomeEditor() {
       setError(null);
 
       const { data, error } = await supabase
-        .from("home_content")
+        .from("pages")
         .select("*")
+        .eq("type", "footer")
         .order("updated_at", { ascending: false })
         .limit(1)
-        .maybeSingle<HomeRow>();
+        .maybeSingle<FooterRow>();
 
       if (!alive) return;
 
-      if (error) {
-        console.error("[useHomeEditor] load error:", error);
+      if (error && error.code !== "PGRST116") {
+        console.error("[useFooterEditor] load error:", error);
         setError(error.message);
       } else if (data) {
-        setRowId(data.id);
+        setPageId(data.id);
         setStatus(data.status);
         setBlocks((data.blocks ?? []) as Block[]);
         setUpdatedAt(data.updated_at);
+        setTitle(data.title);
+        setExcerpt(data.excerpt ?? "");
       } else {
-        setRowId(null);
+        setPageId(null);
         setStatus("draft");
         setBlocks([]);
         setUpdatedAt(null);
+        setTitle("Footer");
+        setExcerpt("");
       }
 
       setLoading(false);
@@ -64,8 +68,8 @@ export function useHomeEditor() {
     };
   }, []);
 
-  function addBlock(type: Block["type"]) {
-    setBlocks((prev) => addBlockToList(type, prev));
+  function addColumnsBlock() {
+    setBlocks((prev) => addBlockToList("columns", prev));
   }
 
   function updateBlock(id: string, updater: (b: Block) => Block) {
@@ -85,55 +89,47 @@ export function useHomeEditor() {
     setError(null);
 
     try {
-      console.log("[useHomeEditor] saving...", {
-        rowId,
-        status,
-        blocksCount: blocks.length,
-      });
-
       const {
         data: { session },
         error: sessionError,
       } = await supabase.auth.getSession();
 
-      if (sessionError) {
-        console.error("[useHomeEditor] session error:", sessionError);
-        throw sessionError;
-      }
+      if (sessionError) throw sessionError;
+      const uid = session?.user?.id;
+      if (!uid) throw new Error("No active session.");
 
-      const uid = session?.user?.id ?? null;
-      console.log("[useHomeEditor] current user id:", uid);
+      const payload = {
+        author_id: uid,
+        title: title || "Footer",
+        slug: "footer",
+        excerpt: excerpt || null,
+        status,
+        type: "footer" as const,
+        parent_collection_id: null,
+        blocks,
+        cover_image_path: null,
+      };
 
-      if (!rowId) {
+      if (!pageId) {
         const { data, error } = await supabase
-          .from("home_content")
-          .insert([
-            {
-              status,
-              blocks,
-              last_editor_id: uid,
-            },
-          ])
+          .from("pages")
+          .insert([payload])
           .select("*")
-          .single<HomeRow>();
+          .single<FooterRow>();
 
         if (error) throw error;
 
         if (data) {
-          setRowId(data.id);
+          setPageId(data.id);
           setUpdatedAt(data.updated_at);
         }
       } else {
         const { data, error } = await supabase
-          .from("home_content")
-          .update({
-            status,
-            blocks,
-            last_editor_id: uid,
-          })
-          .eq("id", rowId)
+          .from("pages")
+          .update(payload)
+          .eq("id", pageId)
           .select("*")
-          .single<HomeRow>();
+          .single<FooterRow>();
 
         if (error) throw error;
 
@@ -142,8 +138,8 @@ export function useHomeEditor() {
         }
       }
     } catch (e: any) {
-      console.error("[useHomeEditor] save error (catch):", e);
-      setError(e.message ?? "Error saving home content.");
+      console.error("[useFooterEditor] save error:", e);
+      setError(e.message ?? "Error saving footer.");
     } finally {
       setSaving(false);
     }
@@ -153,14 +149,22 @@ export function useHomeEditor() {
     loading,
     saving,
     error,
+
     status,
     setStatus,
+
+    title,
+    setTitle,
+    excerpt,
+    setExcerpt,
+
     blocks,
-    addBlock,
+    addColumnsBlock,
     updateBlock,
     removeBlock,
     reorderBlocks,
-    save,
+
     updatedAt,
+    save,
   };
 }

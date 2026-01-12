@@ -1,13 +1,15 @@
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "../../../../lib/supabaseClient";
 import { Slugify } from "../../../../utils/slugify";
-import type { Block, PageRow, ContentStatus } from "../../../../types/contentTypes";
+import type {
+  Block,
+  PageRow,
+  ContentStatus,
+  PageType,
+} from "../../../../types/contentTypes";
+import { addBlockToList } from "../../utils/blocks";
 
 const emptyBlocks: Block[] = [];
-
-function makeId() {
-  return crypto.randomUUID();
-}
 
 export function usePageEditor(pageId?: string) {
   const [loading, setLoading] = useState(true);
@@ -20,6 +22,15 @@ export function usePageEditor(pageId?: string) {
   const [status, setStatus] = useState<ContentStatus>("draft");
   const [blocks, setBlocks] = useState<Block[]>(emptyBlocks);
   const [coverPath, setCoverPath] = useState<string | null>(null);
+
+  const [type, setType] = useState<PageType>("main");
+  const [parentCollectionId, setParentCollectionId] = useState<string | null>(
+    null
+  );
+
+  const [showTitle, setShowTitle] = useState<boolean>(true);
+
+  const computedSlug = useMemo(() => Slugify(title), [title]);
 
   useEffect(() => {
     let alive = true;
@@ -51,6 +62,10 @@ export function usePageEditor(pageId?: string) {
         setStatus(page.status);
         setBlocks(page.blocks ?? []);
         setCoverPath(page.cover_image_path ?? null);
+
+        setType(page.type ?? "main");
+        setParentCollectionId(page.parent_collection_id ?? null);
+        setShowTitle(page.show_title ?? true);
       }
 
       setLoading(false);
@@ -63,33 +78,20 @@ export function usePageEditor(pageId?: string) {
     };
   }, [pageId]);
 
-  const computedSlug = useMemo(() => Slugify(title), [title]);
-
   useEffect(() => {
-    if (!pageId) {
+    if (!pageId && type !== "footer") {
       setSlug(computedSlug);
     }
-  }, [computedSlug, pageId]);
+  }, [computedSlug, pageId, type]);
 
-  function addBlock(type: Block["type"]) {
-    if (type === "heading") {
-      setBlocks((prev) => [
-        ...prev,
-        { id: makeId(), type: "heading", data: { text: "", level: 2 } },
-      ]);
+  useEffect(() => {
+    if (!pageId && type === "footer") {
+      setBlocks((prev) => prev.filter((b) => b.type === "columns"));
     }
-    if (type === "paragraph") {
-      setBlocks((prev) => [
-        ...prev,
-        { id: makeId(), type: "paragraph", data: { text: "" } },
-      ]);
-    }
-    if (type === "image") {
-      setBlocks((prev) => [
-        ...prev,
-        { id: makeId(), type: "image", data: { path: "", alt: "" } },
-      ]);
-    }
+  }, [type, pageId]);
+
+  function addBlock(blockType: Block["type"]) {
+    setBlocks((prev) => addBlockToList(blockType, prev));
   }
 
   function updateBlock(id: string, updater: (b: Block) => Block) {
@@ -114,11 +116,21 @@ export function usePageEditor(pageId?: string) {
     });
   }
 
+  function reorderBlocks(next: Block[]) {
+    setBlocks(next);
+  }
+
   async function save() {
     setSaving(true);
     setError(null);
 
     try {
+      if (type === "content" && !parentCollectionId) {
+        throw new Error(
+          "Content pages must belong to a collection. Please select a collection first."
+        );
+      }
+
       const {
         data: { session },
       } = await supabase.auth.getSession();
@@ -126,24 +138,47 @@ export function usePageEditor(pageId?: string) {
       const uid = session?.user?.id;
       if (!uid) throw new Error("No active session.");
 
+      const rawSlug = slug?.trim();
+      let effectiveSlug = rawSlug;
+
+      if (!effectiveSlug) {
+        if (type === "home") {
+          effectiveSlug = "home";
+        } else if (type === "footer") {
+          effectiveSlug = "footer";
+        } else {
+          effectiveSlug = computedSlug || "";
+        }
+      }
+
+      if (
+        !effectiveSlug ||
+        !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(effectiveSlug)
+      ) {
+        throw new Error(
+          "Slug is required and must be lowercase, with letters, numbers and hyphens only."
+        );
+      }
+
       const payload = {
         author_id: uid,
         title,
-        slug,
+        slug: effectiveSlug,
         excerpt: excerpt || null,
         status,
+        type,
+        parent_collection_id: type === "content" ? parentCollectionId : null,
         blocks,
         cover_image_path: coverPath,
+        show_title: showTitle,
       };
 
-      // Create
       if (!pageId) {
         const { error } = await supabase.from("pages").insert([payload]);
         if (error) throw error;
         return;
       }
 
-      // Update
       const { error } = await supabase
         .from("pages")
         .update(payload)
@@ -156,11 +191,6 @@ export function usePageEditor(pageId?: string) {
       setSaving(false);
     }
   }
-
-  function reorderBlocks(next: Block[]) {
-    setBlocks(next);
-  }
-
 
   return {
     loading,
@@ -175,6 +205,15 @@ export function usePageEditor(pageId?: string) {
     setExcerpt,
     status,
     setStatus,
+
+    type,
+    setType,
+    parentCollectionId,
+    setParentCollectionId,
+
+    showTitle,
+    setShowTitle,
+
     blocks,
     coverPath,
     setCoverPath,
@@ -183,8 +222,8 @@ export function usePageEditor(pageId?: string) {
     updateBlock,
     removeBlock,
     moveBlock,
+    reorderBlocks,
 
     save,
-    reorderBlocks,
   };
 }

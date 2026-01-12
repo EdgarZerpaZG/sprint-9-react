@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import type { ReactNode } from "react";
-import { supabase } from "./../lib/supabaseClient";
+import { supabase } from "../lib/supabaseClient";
 import type { UserAuth } from "../types/userTypes";
 import type { AuthContextType } from "../types/authTypes";
 

@@ -38,14 +38,14 @@ export default function UserManagement() {
 
   if (loading) {
     return (
-      <main className="flex justify-center items-center h-full">
+      <div className="flex justify-center items-center h-full">
         <p className="text-slate-400">Loading users...</p>
-      </main>
+      </div>
     );
   }
 
   return (
-    <main className="p-6 max-w-5xl mx-auto space-y-6">
+    <div className="p-6 max-w-5xl mx-auto space-y-6">
       <header className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold">User Management</h1>
@@ -216,6 +216,6 @@ export default function UserManagement() {
           </div>
         </div>
       )}
-    </main>
+    </div>
   );
 }

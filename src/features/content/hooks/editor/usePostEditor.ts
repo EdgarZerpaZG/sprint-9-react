@@ -2,12 +2,9 @@ import { useEffect, useMemo, useState } from "react";
 import { supabase } from "../../../../lib/supabaseClient";
 import { Slugify } from "../../../../utils/slugify";
 import type {Block, ContentStatus, PostRow} from "../../../../types/contentTypes";
+import { addBlockToList } from "../../utils/blocks";
 
 const emptyBlocks: Block[] = [];
-
-function makeId() {
-  return crypto.randomUUID();
-}
 
 export function usePostEditor(postId?: string) {
   const [loading, setLoading] = useState(true);
@@ -72,24 +69,7 @@ export function usePostEditor(postId?: string) {
   }, [computedSlug, postId]);
 
   function addBlock(type: Block["type"]) {
-    if (type === "heading") {
-      setBlocks((prev) => [
-        ...prev,
-        { id: makeId(), type: "heading", data: { text: "", level: 2 } },
-      ]);
-    }
-    if (type === "paragraph") {
-      setBlocks((prev) => [
-        ...prev,
-        { id: makeId(), type: "paragraph", data: { text: "" } },
-      ]);
-    }
-    if (type === "image") {
-      setBlocks((prev) => [
-        ...prev,
-        { id: makeId(), type: "image", data: { path: "", alt: "" } },
-      ]);
-    }
+    setBlocks((prev) => addBlockToList(type, prev));
   }
 
   function updateBlock(id: string, updater: (b: Block) => Block) {
@@ -141,13 +121,11 @@ export function usePostEditor(postId?: string) {
       };
 
       if (!postId) {
-        // Insert
         const { error } = await supabase.from("posts").insert([payload]);
         if (error) throw error;
         return;
       }
 
-      // Update
       const { error } = await supabase
         .from("posts")
         .update(payload)

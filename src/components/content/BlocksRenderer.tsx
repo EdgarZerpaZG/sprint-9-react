@@ -1,4 +1,4 @@
-import type {Block, HeroBlock, ColumnsBlock} from "../../types/contentTypes";
+import type { Block, HeroBlock, ColumnsBlock } from "../../types/contentTypes";
 import { getPublicImageUrl } from "../../utils/images";
 
 type Props = {
@@ -13,14 +13,25 @@ export default function BlocksRenderer({ blocks }: Props) {
   return (
     <div className="space-y-6">
       {blocks.map((block) => {
-
         // HEADING
         if (block.type === "heading") {
-          const level = block.data.level ?? 2;
+          const rawLevel = block.data.level ?? 2;
+          const level = Math.min(Math.max(rawLevel, 1), 6) as 1 | 2 | 3 | 4 | 5 | 6;
           const Tag = `h${level}` as keyof React.JSX.IntrinsicElements;
 
+          const align = block.data.align ?? "left";
+          const alignClass =
+            align === "center"
+              ? "text-center"
+              : align === "right"
+              ? "text-right"
+              : "text-left";
+
           return (
-            <Tag key={block.id} className="font-semibold mt-4">
+            <Tag
+              key={block.id}
+              className={`font-semibold mt-4 ${alignClass}`}
+            >
               {block.data.text}
             </Tag>
           );
@@ -32,6 +43,17 @@ export default function BlocksRenderer({ blocks }: Props) {
             <p key={block.id} className="text-base leading-relaxed">
               {block.data.text}
             </p>
+          );
+        }
+
+        // RICHTEXT
+        if (block.type === "richtext") {
+          return (
+            <div
+              key={block.id}
+              className="prose prose-slate max-w-none"
+              dangerouslySetInnerHTML={{ __html: block.data.content }}
+            />
           );
         }
 
@@ -53,6 +75,11 @@ export default function BlocksRenderer({ blocks }: Props) {
               )}
             </figure>
           );
+        }
+
+        // DIVIDER
+        if (block.type === "divider") {
+          return <hr key={block.id} className="border-slate-700/60 my-6" />;
         }
 
         // HERO
@@ -109,7 +136,7 @@ function HeroSection({ block }: { block: HeroBlock }) {
 
   return (
     <section className="relative overflow-hidden rounded-xl border border-slate-800 bg-linear-to-r from-emerald-600/80 to-emerald-400/80 px-6 py-10 text-slate-50">
-      {/* Background image opcional */}
+      {/* Background image optional */}
       {bgUrl && (
         <div
           className="absolute inset-0 opacity-30"
@@ -166,12 +193,25 @@ function ColumnsSection({ block }: { block: ColumnsBlock }) {
           <div key={col.id} className="space-y-3">
             {col.blocks?.map((inner) => {
               if (inner.type === "heading") {
-                const level = inner.data.level ?? 3;
+                const rawLevel = inner.data.level ?? 3;
+                const level = Math.min(
+                  Math.max(rawLevel, 1),
+                  6
+                ) as 1 | 2 | 3 | 4 | 5 | 6;
                 const Tag = `h${level}` as keyof React.JSX.IntrinsicElements;
+
+                const align = inner.data.align ?? "left";
+                const alignClass =
+                  align === "center"
+                    ? "text-center"
+                    : align === "right"
+                    ? "text-right"
+                    : "text-left";
+
                 return (
                   <Tag
                     key={inner.id}
-                    className="font-semibold text-sm md:text-base"
+                    className={`font-semibold text-sm md:text-base ${alignClass}`}
                   >
                     {inner.data.text}
                   </Tag>
@@ -206,6 +246,31 @@ function ColumnsSection({ block }: { block: ColumnsBlock }) {
                     )}
                   </figure>
                 );
+              }
+
+              if (inner.type === "divider") {
+                return (
+                  <hr
+                    key={inner.id}
+                    className="border-slate-700/60 my-4"
+                  />
+                );
+              }
+
+              if (inner.type === "richtext") {
+                return (
+                  <div
+                    key={inner.id}
+                    className="prose prose-slate max-w-none text-sm"
+                    dangerouslySetInnerHTML={{
+                      __html: inner.data.content,
+                    }}
+                  />
+                );
+              }
+
+              if (inner.type === "hero" || inner.type === "columns") {
+                return null;
               }
 
               return null;

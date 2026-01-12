@@ -32,7 +32,7 @@ export default function SortableBlockItem({
     opacity: isDragging ? 0.6 : 1,
   };
 
-  // ---------- Helpers para "columns" ----------
+  // ---------- Helpers "columns" ----------
 
   function ensureColumnsArray(
     b: Extract<Block, { type: "columns" }>
@@ -97,7 +97,7 @@ export default function SortableBlockItem({
           newBlock = {
             id: newBlockId,
             type: "heading",
-            data: { text: "", level: 2 },
+            data: { text: "", level: 2, align: "left" },
           };
         } else if (type === "paragraph") {
           newBlock = {
@@ -197,21 +197,86 @@ export default function SortableBlockItem({
         </div>
 
         {inner.type === "heading" && (
-          <input
-            type="text"
-            value={inner.data.text}
-            onChange={(e) =>
-              handleUpdateInnerBlock(colId, inner.id, (old) => {
-                if (old.type !== "heading") return old;
-                return {
-                  ...old,
-                  data: { ...old.data, text: e.target.value },
-                };
-              })
-            }
-            placeholder="Heading text..."
-            className="w-full bg-slate-950 border border-slate-800 rounded px-2 py-1 text-sm"
-          />
+          <div className="space-y-2">
+            <div className="flex flex-wrap items-center gap-2">
+              {/* H1–H6 */}
+              <div className="flex items-center gap-1">
+                <label className="text-[11px] text-slate-400">Level</label>
+                <select
+                  value={inner.data.level ?? 2}
+                  onChange={(e) =>
+                    handleUpdateInnerBlock(colId, inner.id, (old) => {
+                      if (old.type !== "heading") return old;
+                      return {
+                        ...old,
+                        data: {
+                          ...old.data,
+                          level: Number(e.target.value) as
+                            | 1
+                            | 2
+                            | 3
+                            | 4
+                            | 5
+                            | 6,
+                        },
+                      };
+                    })
+                  }
+                  className="rounded bg-slate-950 border border-slate-800 px-2 py-1 text-[11px]"
+                >
+                  {[1, 2, 3, 4, 5, 6].map((lvl) => (
+                    <option key={lvl} value={lvl}>
+                      H{lvl}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Align */}
+              <div className="flex items-center gap-1">
+                <label className="text-[11px] text-slate-400">Align</label>
+                <select
+                  value={inner.data.align ?? "left"}
+                  onChange={(e) =>
+                    handleUpdateInnerBlock(colId, inner.id, (old) => {
+                      if (old.type !== "heading") return old;
+                      return {
+                        ...old,
+                        data: {
+                          ...old.data,
+                          align: e.target.value as
+                            | "left"
+                            | "center"
+                            | "right",
+                        },
+                      };
+                    })
+                  }
+                  className="rounded bg-slate-950 border border-slate-800 px-2 py-1 text-[11px]"
+                >
+                  <option value="left">Left</option>
+                  <option value="center">Center</option>
+                  <option value="right">Right</option>
+                </select>
+              </div>
+            </div>
+
+            <input
+              type="text"
+              value={inner.data.text}
+              onChange={(e) =>
+                handleUpdateInnerBlock(colId, inner.id, (old) => {
+                  if (old.type !== "heading") return old;
+                  return {
+                    ...old,
+                    data: { ...old.data, text: e.target.value },
+                  };
+                })
+              }
+              placeholder="Heading text..."
+              className="w-full bg-slate-950 border border-slate-800 rounded px-2 py-1 text-sm"
+            />
+          </div>
         )}
 
         {inner.type === "paragraph" && (
@@ -253,6 +318,15 @@ export default function SortableBlockItem({
     );
   }
 
+
+  const innerButtonBase =
+    "px-2 py-0.5 text-[11px] rounded border border-slate-700 transition-colors";
+
+  const makeInnerButtonClass = (active: boolean) =>
+    active
+      ? `${innerButtonBase} bg-emerald-600 text-white hover:bg-emerald-500`
+      : `${innerButtonBase} bg-slate-800 text-slate-100 hover:bg-slate-700`;
+
   // ---------- RENDER PRINCIPAL ----------
 
   return (
@@ -286,24 +360,86 @@ export default function SortableBlockItem({
         </button>
       </div>
 
-      {/* Blocks simples */}
+      {/* Simple Block: HEADING */}
       {block.type === "heading" && (
-        <input
-          value={block.data.text}
-          onChange={(e) =>
-            onUpdate(block.id, (old) => {
-              if (old.type === "heading") {
-                return {
-                  ...old,
-                  data: { ...old.data, text: e.target.value },
-                };
-              }
-              return old;
-            })
-          }
-          placeholder="Heading text..."
-          className="w-full bg-slate-950 border border-slate-800 rounded p-2 text-sm"
-        />
+        <div className="space-y-2">
+          <div className="flex flex-wrap items-center gap-3">
+            {/* H1–H6 */}
+            <div className="flex items-center gap-1">
+              <label className="text-xs text-slate-400">Level</label>
+              <select
+                value={block.data.level ?? 2}
+                onChange={(e) =>
+                  onUpdate(block.id, (old) => {
+                    if (old.type !== "heading") return old;
+                    return {
+                      ...old,
+                      data: {
+                        ...old.data,
+                        level: Number(e.target.value) as
+                          | 1
+                          | 2
+                          | 3
+                          | 4
+                          | 5
+                          | 6,
+                      },
+                    };
+                  })
+                }
+                className="rounded bg-slate-950 border border-slate-800 px-2 py-1 text-xs"
+              >
+                {[1, 2, 3, 4, 5, 6].map((lvl) => (
+                  <option key={lvl} value={lvl}>
+                    H{lvl}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Alignment */}
+            <div className="flex items-center gap-1">
+              <label className="text-xs text-slate-400">Align</label>
+              <select
+                value={block.data.align ?? "left"}
+                onChange={(e) =>
+                  onUpdate(block.id, (old) => {
+                    if (old.type !== "heading") return old;
+                    return {
+                      ...old,
+                      data: {
+                        ...old.data,
+                        align: e.target.value as "left" | "center" | "right",
+                      },
+                    };
+                  })
+                }
+                className="rounded bg-slate-950 border border-slate-800 px-2 py-1 text-xs"
+              >
+                <option value="left">Left</option>
+                <option value="center">Center</option>
+                <option value="right">Right</option>
+              </select>
+            </div>
+          </div>
+
+          <input
+            value={block.data.text}
+            onChange={(e) =>
+              onUpdate(block.id, (old) => {
+                if (old.type === "heading") {
+                  return {
+                    ...old,
+                    data: { ...old.data, text: e.target.value },
+                  };
+                }
+                return old;
+              })
+            }
+            placeholder="Heading text..."
+            className="w-full bg-slate-950 border border-slate-800 rounded p-2 text-sm"
+          />
+        </div>
       )}
 
       {block.type === "paragraph" && (
@@ -340,7 +476,7 @@ export default function SortableBlockItem({
         />
       )}
 
-      {/* HERO block (editor completo) */}
+      {/* HERO block */}
       {block.type === "hero" && (
         <div className="space-y-3 mt-2">
           {/* Title */}
@@ -469,7 +605,7 @@ export default function SortableBlockItem({
             </select>
           </div>
 
-          {/* Background image (optional) */}
+          {/* Background image */}
           <div className="pt-2 border-t border-slate-800 mt-2">
             <p className="text-xs text-slate-400 mb-2">
               Background image (optional)
@@ -515,63 +651,75 @@ export default function SortableBlockItem({
           </div>
 
           <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
-            {ensureColumnsArray(block as any).map((col, colIndex) => (
-              <div
-                key={col.id}
-                className="border border-slate-800 rounded p-2 bg-slate-950/60 space-y-2"
-              >
-                <div className="flex items-center justify-between">
-                  <span className="text-xs text-slate-400">
-                    Column {colIndex + 1}
-                  </span>
-                  {ensureColumnsArray(block as any).length > 1 && (
+            {ensureColumnsArray(block as any).map((col, colIndex) => {
+              const headingCount = col.blocks.filter(
+                (b) => b.type === "heading"
+              ).length;
+              const paragraphCount = col.blocks.filter(
+                (b) => b.type === "paragraph"
+              ).length;
+              const imageCount = col.blocks.filter(
+                (b) => b.type === "image"
+              ).length;
+
+              return (
+                <div
+                  key={col.id}
+                  className="border border-slate-800 rounded p-2 bg-slate-950/60 space-y-2"
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-slate-400">
+                      Column {colIndex + 1}
+                    </span>
+                    {ensureColumnsArray(block as any).length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveColumn(col.id)}
+                        className="px-1.5 py-0.5 text-[11px] rounded bg-red-500/20 text-red-200"
+                      >
+                        Remove
+                      </button>
+                    )}
+                  </div>
+
+                  <div className="flex flex-wrap gap-1 mb-2">
                     <button
                       type="button"
-                      onClick={() => handleRemoveColumn(col.id)}
-                      className="px-1.5 py-0.5 text-[11px] rounded bg-red-500/20 text-red-200"
+                      onClick={() => handleAddInnerBlock(col.id, "heading")}
+                      className={makeInnerButtonClass(headingCount > 0)}
                     >
-                      Remove
+                      + Heading ({headingCount})
                     </button>
-                  )}
-                </div>
+                    <button
+                      type="button"
+                      onClick={() => handleAddInnerBlock(col.id, "paragraph")}
+                      className={makeInnerButtonClass(paragraphCount > 0)}
+                    >
+                      + Paragraph ({paragraphCount})
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleAddInnerBlock(col.id, "image")}
+                      className={makeInnerButtonClass(imageCount > 0)}
+                    >
+                      + Image ({imageCount})
+                    </button>
+                  </div>
 
-                <div className="flex flex-wrap gap-1 mb-2">
-                  <button
-                    type="button"
-                    onClick={() => handleAddInnerBlock(col.id, "heading")}
-                    className="px-2 py-0.5 text-[11px] rounded bg-slate-800 hover:bg-slate-700"
-                  >
-                    + Heading
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleAddInnerBlock(col.id, "paragraph")}
-                    className="px-2 py-0.5 text-[11px] rounded bg-slate-800 hover:bg-slate-700"
-                  >
-                    + Paragraph
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleAddInnerBlock(col.id, "image")}
-                    className="px-2 py-0.5 text-[11px] rounded bg-slate-800 hover:bg-slate-700"
-                  >
-                    + Image
-                  </button>
-                </div>
+                  <div className="space-y-2">
+                    {col.blocks.length === 0 && (
+                      <p className="text-xs text-slate-500">
+                        No blocks in this column yet.
+                      </p>
+                    )}
 
-                <div className="space-y-2">
-                  {col.blocks.length === 0 && (
-                    <p className="text-xs text-slate-500">
-                      No blocks in this column yet.
-                    </p>
-                  )}
-
-                  {col.blocks.map((inner) =>
-                    renderInnerBlockEditor(inner, col.id)
-                  )}
+                    {col.blocks.map((inner) =>
+                      renderInnerBlockEditor(inner, col.id)
+                    )}
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       )}

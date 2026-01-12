@@ -1,9 +1,9 @@
 import { useState, useMemo, useCallback } from "react";
 import { DateTime } from "luxon";
 import type {DateSelectArg, EventClickArg} from "@fullcalendar/core";
-import { useBookings } from "./useBooking";
-import { supabase } from "../lib/supabaseClient";
-import { useAuth } from "./useAuth";
+import { useBookings } from "./useBooking.ts";
+import { supabase } from "../lib/supabaseClient.tsx";
+import { useAuth } from "./useAuth.tsx";
 import { useIsAdmin } from "./useIsAdmin.tsx";
 
 type SelectedRange = { startStr: string; endStr: string } | null;
