@@ -11,7 +11,7 @@ export type PagesNavTree = {
   footer: PageRow | null;
   collections: CollectionNode[];
   mains: PageRow[];
-  articles: PageRow[];
+  contents: PageRow[];
 };
 
 export function usePagesNavTree() {
@@ -58,7 +58,6 @@ export function usePagesNavTree() {
     const home = byType("home")[0] ?? null;
     const footer = byType("footer")[0] ?? null;
     const mains = byType("main");
-    const articles = byType("article");
     const collectionsRaw = byType("collection");
     const contents = byType("content");
 
@@ -74,7 +73,7 @@ export function usePagesNavTree() {
       footer,
       collections,
       mains,
-      articles,
+      contents,
     };
   }, [pages]);
 
