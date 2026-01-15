@@ -8,11 +8,11 @@ vi.mock("../utils/images", () => ({
 }));
 
 describe("BlocksRenderer", () => {
-  it("renders heading, paragraph and image blocks", () => {
+  it("renders title, paragraph and image blocks", () => {
     const blocks: Block[] = [
       {
         id: "1",
-        type: "heading",
+        type: "title",
         data: { text: "Hello world", level: 2 },
       },
       {
@@ -73,7 +73,7 @@ describe("BlocksRenderer", () => {
                 blocks: [
                 {
                     id: "h1",
-                    type: "heading",
+                    type: "title",
                     data: { text: "Column 1", level: 3 },
                 },
                 {
@@ -88,7 +88,7 @@ describe("BlocksRenderer", () => {
                 blocks: [
                 {
                     id: "h2",
-                    type: "heading",
+                    type: "title",
                     data: { text: "Column 2", level: 3 },
                 },
                 ],

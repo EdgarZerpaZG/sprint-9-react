@@ -1,16 +1,27 @@
-import { useState } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { NavLink, Outlet } from "react-router-dom";
 import { useUserRole } from "../hooks/useUserRole";
 import DashboardTop from "../components/Dashboard/DashboardTop";
 import { usePagesNavTree } from "../hooks/usePagesNavTree";
+import { useSiteSettings } from "../hooks/useSiteSettings";
 import { Menu, X } from "lucide-react";
 
 export default function DashboardLayout() {
   const { role, loadingRole } = useUserRole();
   const { tree, loading: loadingPages } = usePagesNavTree();
+  const { settings, loading: loadingSettings } = useSiteSettings();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  if (loadingRole || loadingPages) {
+  const managerTitle = useMemo(
+    () => settings?.manager_title?.trim() || "ManagementZG",
+    [settings?.manager_title]
+  );
+
+  useEffect(() => {
+    document.title = `${managerTitle} | Dashboard`;
+  }, [managerTitle]);
+
+  if (loadingRole || loadingPages || loadingSettings) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-950 text-slate-100">
         <p>Loading dashboard...</p>
@@ -32,7 +43,7 @@ export default function DashboardLayout() {
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100">
-      {/* Overlay móvil */}
+      {/* Mobile overlay */}
       {sidebarOpen && (
         <div
           className="fixed inset-0 bg-black/40 z-30 lg:hidden"
@@ -50,28 +61,40 @@ export default function DashboardLayout() {
           <p className="text-xs uppercase tracking-widest text-slate-400">
             Admin Panel
           </p>
-          <h2 className="text-lg font-semibold">Animal Shelter CMS</h2>
+          <h2 className="text-lg font-semibold">{managerTitle}</h2>
         </div>
 
         {/* Nav */}
         <nav className="p-3 space-y-1 overflow-y-auto h-[calc(100vh-64px)]">
-          {/* Core */}
-          <p className="px-3 pt-2 text-xs uppercase tracking-widest text-slate-500">
-            Core
-          </p>
-
           {/* Admin only */}
           {role === "admin" && (
-            <NavLink
-              to="users"
-              className={navClass}
-              onClick={handleNavClick}
-            >
-              Users
-            </NavLink>
+            <>
+              <p className="px-3 pt-2 text-xs uppercase tracking-widest text-slate-500">
+                Core Management
+              </p>
+              <NavLink
+                to="users"
+                className={navClass}
+                onClick={handleNavClick}
+              >
+                Users
+              </NavLink>
+
+                {/* NEW: Settings */}
+              <NavLink
+                to="settings-management"
+                className={navClass}
+                onClick={handleNavClick}
+              >
+                Settings
+              </NavLink>
+            </>
           )}
 
-          {/* Pages list */}
+          {/* Pages management */}
+          <p className="px-3 pt-2 text-xs uppercase tracking-widest text-slate-500">
+            Pages Management
+          </p>
           <NavLink
             to="pages-management"
             className={navClass}
@@ -83,7 +106,7 @@ export default function DashboardLayout() {
           {/* Content */}
           <div className="pt-3 mt-3 border-t border-slate-800 space-y-2">
             <p className="px-3 text-xs uppercase tracking-widest text-slate-500">
-              Content
+              Home Content
             </p>
 
             {/* HOME */}
@@ -158,7 +181,7 @@ export default function DashboardLayout() {
             {tree.footer && (
               <div className="space-y-1 pt-2 border-t border-slate-800 mt-2">
                 <p className="px-3 text-[11px] uppercase tracking-widest text-slate-500">
-                  Layout
+                  Footer Content
                 </p>
                 <NavLink
                   to={`pages/${tree.footer.id}`}
@@ -174,6 +197,7 @@ export default function DashboardLayout() {
       </aside>
 
       <div className="min-h-screen lg:ml-64">
+        {/* Mobile top bar */}
         <div className="lg:hidden flex items-center justify-between px-4 py-3 border-b border-slate-800 bg-slate-950 sticky top-0 z-20">
           <button
             type="button"
@@ -186,10 +210,10 @@ export default function DashboardLayout() {
               <Menu className="w-5 h-5" />
             )}
           </button>
-          <span className="text-sm font-semibold">Animal Shelter CMS</span>
+          <span className="text-sm font-semibold">{managerTitle}</span>
         </div>
 
-        {/* Dasboard Top */}
+        {/* Dashboard Top */}
         <DashboardTop />
 
         <main className="p-6">

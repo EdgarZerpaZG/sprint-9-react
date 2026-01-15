@@ -5,7 +5,6 @@ export default function Login() {
         <>
             <main className="flex justify-center items-center h-full">
                 <section>
-                    <h1 className="text-center">LOG IN</h1>
                     <LoginForm />
                 </section>
             </main>

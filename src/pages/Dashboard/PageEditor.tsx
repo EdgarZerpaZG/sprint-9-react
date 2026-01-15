@@ -68,7 +68,7 @@ export default function PageEditor() {
 
   const heroCount = countByType("hero");
   const columnsCount = countByType("columns");
-  const headingCount = countByType("heading");
+  const titleCount = countByType("title");
   const paragraphCount = countByType("paragraph");
   const imageCount = countByType("image");
 
@@ -129,40 +129,8 @@ export default function PageEditor() {
             {isNew ? "New Page" : "Edit Page"}
           </h1>
           <p className="text-sm text-slate-400">
-            Manage content blocks and SEO for this page.
+            Manage content blocks for this page.
           </p>
-        </div>
-
-        <div className="flex items-center gap-3">
-          {publicUrl && (
-            <button
-              type="button"
-              onClick={handleOpenPublic}
-              className="px-4 py-2 rounded bg-slate-800 hover:bg-slate-700 text-sm font-medium"
-            >
-              Open page <ExternalLink className="inline-block mr-2" size={16} />
-            </button>
-          )}
-
-          {!isNew && isAdmin && (
-            <button
-              type="button"
-              onClick={handleDelete}
-              disabled={saving}
-              className="px-4 py-2 rounded bg-red-600 hover:bg-red-700 disabled:opacity-50 text-sm font-medium"
-            >
-              Delete
-            </button>
-          )}
-
-          <button
-            type="button"
-            onClick={save}
-            disabled={saving || cannotSaveContent}
-            className="px-4 py-2 rounded bg-emerald-500 hover:bg-emerald-600 disabled:opacity-50 text-sm font-medium"
-          >
-            {saving ? "Saving..." : "Save page"}
-          </button>
         </div>
       </header>
 
@@ -219,10 +187,14 @@ export default function PageEditor() {
             {/* Collection selector if type === content */}
             {isContentType && !noCollections && (
               <div>
-                <label className="block text-xs font-semibold uppercase text-slate-400 mb-1">
+                <label
+                  htmlFor="collection-select"
+                  className="block text-xs font-semibold uppercase text-slate-400 mb-1"
+                >
                   Collection
                 </label>
                 <select
+                  id="collection-select"
                   value={parentCollectionId ?? ""}
                   onChange={(e) =>
                     setParentCollectionId(
@@ -352,10 +324,10 @@ export default function PageEditor() {
                 </button>
                 <button
                   type="button"
-                  onClick={() => addBlock("heading")}
-                  className={makeBlockButtonClass(headingCount > 0)}
+                  onClick={() => addBlock("title")}
+                  className={makeBlockButtonClass(titleCount > 0)}
                 >
-                  + Heading ({headingCount})
+                  + Title ({titleCount})
                 </button>
                 <button
                   type="button"
@@ -387,7 +359,7 @@ export default function PageEditor() {
         {/* SIDEBAR */}
         <aside className="col-span-12 lg:col-span-4 space-y-4 lg:order-1 order-0">
           <div className="rounded-lg bg-slate-900/60 border border-slate-800 p-4 space-y-3">
-            <h2 className="text-sm font-semibold">Publish</h2>
+            <h4 className="text-sm font-semibold">Publish</h4>
 
             <div className="space-y-1 text-xs text-slate-400">
               <p>
@@ -426,8 +398,32 @@ export default function PageEditor() {
                 disabled={saving || cannotSaveContent}
                 className="flex-1 px-3 py-1.5 rounded bg-emerald-500 hover:bg-emerald-600 text-xs font-semibold disabled:opacity-50"
               >
-                {saving ? "Saving..." : "Save & stay"}
+                {saving ? "Saving..." : "Save"}
               </button>
+            </div>
+          </div>
+          <div className="rounded-lg bg-slate-900/60 border border-slate-800 p-4 space-y-3">
+            <div className="pt-2 flex justify-between gap-2">
+              {publicUrl && !isFooterType && (
+                <button
+                  type="button"
+                  onClick={handleOpenPublic}
+                  className="flex-1 px-3 py-1.5 rounded bg-slate-800 hover:bg-slate-700 text-xs font-semibold disabled:opacity-50"
+                >
+                  Open page <ExternalLink className="inline-block mr-2" size={16} />
+                </button>
+              )}
+
+              {!isNew && isAdmin && (
+                <button
+                  type="button"
+                  onClick={handleDelete}
+                  disabled={saving}
+                  className="flex-1 px-3 py-1.5 rounded bg-red-600 hover:bg-red-700 text-xs font-semibold disabled:opacity-50"
+                >
+                  Delete
+                </button>
+              )}
             </div>
           </div>
         </aside>

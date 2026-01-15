@@ -1,7 +1,7 @@
 export type ContentStatus = "draft" | "published";
 
 export type BlockType =
-  | "heading"
+  | "title"
   | "paragraph"
   | "image"
   | "richtext"
@@ -18,9 +18,9 @@ export type BlockBase = {
    Basic block
    ────────────────────────────── */
 
-// Heading block
-export type HeadingBlock = BlockBase & {
-  type: "heading";
+// Title block
+export type TitleBlock = BlockBase & {
+  type: "title";
   data: {
     text: string;
     level: 1 | 2 | 3 | 4 | 5 | 6;
@@ -33,6 +33,7 @@ export type ParagraphBlock = BlockBase & {
   type: "paragraph";
   data: {
     text: string;
+    align?: "left" | "center" | "right";
   };
 };
 
@@ -96,7 +97,7 @@ export type ColumnsBlock = BlockBase & {
    ────────────────────────────── */
 
 export type Block =
-  | HeadingBlock
+  | TitleBlock
   | ParagraphBlock
   | ImageBlock
   | RichTextBlock

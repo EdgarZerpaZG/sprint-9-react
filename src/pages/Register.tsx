@@ -5,7 +5,6 @@ export default function Register() {
         <>
             <main className="flex justify-center items-center h-full">
                 <section>
-                    <h1 className="text-center">REGISTER</h1>
                     <RegisterForm />
                 </section>
             </main>

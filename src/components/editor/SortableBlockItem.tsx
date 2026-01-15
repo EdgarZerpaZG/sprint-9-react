@@ -83,7 +83,7 @@ export default function SortableBlockItem({
 
   function handleAddInnerBlock(
     colId: string,
-    type: "heading" | "paragraph" | "image"
+    type: "title" | "paragraph" | "image"
   ) {
     onUpdate(block.id, (old) => {
       if (old.type !== "columns") return old;
@@ -93,17 +93,17 @@ export default function SortableBlockItem({
         const newBlockId = crypto.randomUUID();
         let newBlock: Block;
 
-        if (type === "heading") {
+        if (type === "title") {
           newBlock = {
             id: newBlockId,
-            type: "heading",
+            type: "title",
             data: { text: "", level: 2, align: "left" },
           };
         } else if (type === "paragraph") {
           newBlock = {
             id: newBlockId,
             type: "paragraph",
-            data: { text: "" },
+            data: { text: "", align: "left" },
           };
         } else {
           newBlock = {
@@ -196,7 +196,7 @@ export default function SortableBlockItem({
           </button>
         </div>
 
-        {inner.type === "heading" && (
+        {inner.type === "title" && (
           <div className="space-y-2">
             <div className="flex flex-wrap items-center gap-2">
               {/* H1–H6 */}
@@ -206,7 +206,7 @@ export default function SortableBlockItem({
                   value={inner.data.level ?? 2}
                   onChange={(e) =>
                     handleUpdateInnerBlock(colId, inner.id, (old) => {
-                      if (old.type !== "heading") return old;
+                      if (old.type !== "title") return old;
                       return {
                         ...old,
                         data: {
@@ -239,7 +239,7 @@ export default function SortableBlockItem({
                   value={inner.data.align ?? "left"}
                   onChange={(e) =>
                     handleUpdateInnerBlock(colId, inner.id, (old) => {
-                      if (old.type !== "heading") return old;
+                      if (old.type !== "title") return old;
                       return {
                         ...old,
                         data: {
@@ -266,20 +266,21 @@ export default function SortableBlockItem({
               value={inner.data.text}
               onChange={(e) =>
                 handleUpdateInnerBlock(colId, inner.id, (old) => {
-                  if (old.type !== "heading") return old;
+                  if (old.type !== "title") return old;
                   return {
                     ...old,
                     data: { ...old.data, text: e.target.value },
                   };
                 })
               }
-              placeholder="Heading text..."
+              placeholder="Title text..."
               className="w-full bg-slate-950 border border-slate-800 rounded px-2 py-1 text-sm"
             />
           </div>
         )}
 
         {inner.type === "paragraph" && (
+          
           <RichTextBlockEditor
             value={inner.data.text}
             onChange={(newText) =>
@@ -360,8 +361,8 @@ export default function SortableBlockItem({
         </button>
       </div>
 
-      {/* Simple Block: HEADING */}
-      {block.type === "heading" && (
+      {/* Simple Block: TITLE */}
+      {block.type === "title" && (
         <div className="space-y-2">
           <div className="flex flex-wrap items-center gap-3">
             {/* H1–H6 */}
@@ -371,7 +372,7 @@ export default function SortableBlockItem({
                 value={block.data.level ?? 2}
                 onChange={(e) =>
                   onUpdate(block.id, (old) => {
-                    if (old.type !== "heading") return old;
+                    if (old.type !== "title") return old;
                     return {
                       ...old,
                       data: {
@@ -404,7 +405,7 @@ export default function SortableBlockItem({
                 value={block.data.align ?? "left"}
                 onChange={(e) =>
                   onUpdate(block.id, (old) => {
-                    if (old.type !== "heading") return old;
+                    if (old.type !== "title") return old;
                     return {
                       ...old,
                       data: {
@@ -427,7 +428,7 @@ export default function SortableBlockItem({
             value={block.data.text}
             onChange={(e) =>
               onUpdate(block.id, (old) => {
-                if (old.type === "heading") {
+                if (old.type === "title") {
                   return {
                     ...old,
                     data: { ...old.data, text: e.target.value },
@@ -436,7 +437,7 @@ export default function SortableBlockItem({
                 return old;
               })
             }
-            placeholder="Heading text..."
+            placeholder="Title text..."
             className="w-full bg-slate-950 border border-slate-800 rounded p-2 text-sm"
           />
         </div>
@@ -652,8 +653,8 @@ export default function SortableBlockItem({
 
           <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
             {ensureColumnsArray(block as any).map((col, colIndex) => {
-              const headingCount = col.blocks.filter(
-                (b) => b.type === "heading"
+              const titleCount = col.blocks.filter(
+                (b) => b.type === "title"
               ).length;
               const paragraphCount = col.blocks.filter(
                 (b) => b.type === "paragraph"
@@ -685,10 +686,10 @@ export default function SortableBlockItem({
                   <div className="flex flex-wrap gap-1 mb-2">
                     <button
                       type="button"
-                      onClick={() => handleAddInnerBlock(col.id, "heading")}
-                      className={makeInnerButtonClass(headingCount > 0)}
+                      onClick={() => handleAddInnerBlock(col.id, "title")}
+                      className={makeInnerButtonClass(titleCount > 0)}
                     >
-                      + Heading ({headingCount})
+                      + Title ({titleCount})
                     </button>
                     <button
                       type="button"

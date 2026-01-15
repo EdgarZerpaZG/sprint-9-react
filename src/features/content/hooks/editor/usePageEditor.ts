@@ -65,7 +65,7 @@ export function usePageEditor(pageId?: string) {
 
         setType(page.type ?? "main");
         setParentCollectionId(page.parent_collection_id ?? null);
-        setShowTitle(page.show_title ?? true);
+        setShowTitle((page as any).show_title ?? true);
       }
 
       setLoading(false);

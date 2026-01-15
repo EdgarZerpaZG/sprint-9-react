@@ -13,8 +13,8 @@ export default function BlocksRenderer({ blocks }: Props) {
   return (
     <div className="space-y-6">
       {blocks.map((block) => {
-        // HEADING
-        if (block.type === "heading") {
+        // TITLE
+        if (block.type === "title") {
           const rawLevel = block.data.level ?? 2;
           const level = Math.min(Math.max(rawLevel, 1), 6) as 1 | 2 | 3 | 4 | 5 | 6;
           const Tag = `h${level}` as keyof React.JSX.IntrinsicElements;
@@ -39,8 +39,15 @@ export default function BlocksRenderer({ blocks }: Props) {
 
         // PARAGRAPH
         if (block.type === "paragraph") {
+          const align = block.data.align ?? "left";
+          const alignClass =
+            align === "center"
+              ? "text-center"
+              : align === "right"
+              ? "text-right"
+              : "text-left";
           return (
-            <p key={block.id} className="text-base leading-relaxed">
+            <p key={block.id} className={`text-base leading-relaxed ${alignClass}`}>
               {block.data.text}
             </p>
           );
@@ -135,7 +142,7 @@ function HeroSection({ block }: { block: HeroBlock }) {
       : "justify-start";
 
   return (
-    <section className="relative overflow-hidden rounded-xl border border-slate-800 bg-linear-to-r from-emerald-600/80 to-emerald-400/80 px-6 py-10 text-slate-50">
+    <article className="relative overflow-hidden rounded-xl border bg-linear-to-r from-emerald-600/80 to-emerald-400/80 px-6 py-10 text-slate-50">
       {/* Background image optional */}
       {bgUrl && (
         <div
@@ -174,7 +181,7 @@ function HeroSection({ block }: { block: HeroBlock }) {
           </div>
         )}
       </div>
-    </section>
+    </article>
   );
 }
 
@@ -192,7 +199,7 @@ function ColumnsSection({ block }: { block: ColumnsBlock }) {
         {columns.map((col) => (
           <div key={col.id} className="space-y-3">
             {col.blocks?.map((inner) => {
-              if (inner.type === "heading") {
+              if (inner.type === "title") {
                 const rawLevel = inner.data.level ?? 3;
                 const level = Math.min(
                   Math.max(rawLevel, 1),
@@ -219,10 +226,18 @@ function ColumnsSection({ block }: { block: ColumnsBlock }) {
               }
 
               if (inner.type === "paragraph") {
+
+                const align = inner.data.align ?? "left";
+                const alignClass =
+                  align === "center"
+                    ? "text-center"
+                    : align === "right"
+                    ? "text-right"
+                    : "text-left";
                 return (
                   <p
                     key={inner.id}
-                    className="text-sm leading-relaxed text-slate-500"
+                    className={`text-sm leading-relaxed ${alignClass}`}
                   >
                     {inner.data.text}
                   </p>

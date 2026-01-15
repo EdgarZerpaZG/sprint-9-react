@@ -4,12 +4,12 @@ const makeId = () => crypto.randomUUID();
 
 export function addBlockToList(type: BlockType, list: Block[]): Block[] {
   switch (type) {
-    case "heading":
+    case "title":
       return [
         ...list,
         {
           id: makeId(),
-          type: "heading",
+          type: "title",
           data: { text: "", level: 2 },
         },
       ];
@@ -51,9 +51,9 @@ export function addBlockToList(type: BlockType, list: Block[]): Block[] {
           id: makeId(),
           type: "hero",
           data: {
-            title: "Welcome to our shelter",
-            subtitle: "You can edit this hero block from the dashboard.",
-            buttonLabel: "See our animals",
+            title: "Welcome to our Management",
+            subtitle: "Build your website as you like.",
+            buttonLabel: "See our content",
             buttonUrl: "/pages/adopt",
             align: "left",
             backgroundImagePath: null,

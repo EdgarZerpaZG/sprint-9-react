@@ -12,11 +12,12 @@ export default function LoginForm() {
     });
 
   return (
-    <form onSubmit={handleSubmit}>
+    <form className="p-5 bg-slate-900 text-white rounded-lg shadow-lg" onSubmit={handleSubmit}>
       <div className="space-y-12">
         <div className="border-b border-white/10 pb-12">
           <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-5">
             <div className="sm:col-span-5">
+              <h2 className="text-center text-xl font-bold mb-4">LOG IN</h2>
               <label htmlFor="email" className="block text-sm/6 font-medium">
                 Email address
               </label>

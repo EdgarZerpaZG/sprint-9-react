@@ -84,10 +84,10 @@ export default function HomeEditor() {
 
             <button
               type="button"
-              onClick={() => addBlock("heading")}
+              onClick={() => addBlock("title")}
               className="px-2 py-1 text-xs rounded bg-slate-800 hover:bg-slate-700"
             >
-              + Heading
+              + Title
             </button>
             <button
               type="button"

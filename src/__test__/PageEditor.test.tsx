@@ -6,7 +6,6 @@ import * as PageEditorHook from "../features/content/hooks/editor/usePageEditor"
 import * as UsePagesHook from "../features/content/hooks/usePages";
 import * as UseUserRoleHook from "../hooks/useUserRole";
 
-
 vi.mock("react-router-dom", async (importOriginal) => {
   const actual = await importOriginal<typeof ReactRouter>();
   return {
@@ -16,21 +15,17 @@ vi.mock("react-router-dom", async (importOriginal) => {
   };
 });
 
-
 vi.mock("../features/content/hooks/editor/usePageEditor", () => ({
   usePageEditor: vi.fn(),
 }));
-
 
 vi.mock("../features/content/hooks/usePages", () => ({
   usePages: vi.fn(),
 }));
 
-
 vi.mock("../hooks/useUserRole", () => ({
   useUserRole: vi.fn(),
 }));
-
 
 vi.mock("../components/editor/BlocksEditorDnd", () => ({
   __esModule: true,
@@ -39,9 +34,11 @@ vi.mock("../components/editor/BlocksEditorDnd", () => ({
 
 describe("PageEditor", () => {
   const mockUseParams = ReactRouter.useParams as unknown as Mock;
-  const mockUsePageEditor = PageEditorHook.usePageEditor as unknown as Mock;
+  const mockUsePageEditor =
+    PageEditorHook.usePageEditor as unknown as Mock;
   const mockUsePages = UsePagesHook.usePages as unknown as Mock;
-  const mockUseUserRole = UseUserRoleHook.useUserRole as unknown as Mock;
+  const mockUseUserRole =
+    UseUserRoleHook.useUserRole as unknown as Mock;
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -68,6 +65,7 @@ describe("PageEditor", () => {
       loading: false,
       saving: false,
       error: null,
+
       title: "Initial title",
       setTitle: vi.fn(),
       slug: "initial-slug",
@@ -81,6 +79,9 @@ describe("PageEditor", () => {
       setType: vi.fn(),
       parentCollectionId: null as string | null,
       setParentCollectionId: vi.fn(),
+
+      showTitle: true,
+      setShowTitle: vi.fn(),
 
       blocks: [] as any[],
       coverPath: null as string | null,
@@ -120,8 +121,9 @@ describe("PageEditor", () => {
     render(<PageEditor />);
 
     expect(screen.getByText(/New Page/i)).toBeInTheDocument();
+    // Updated copy from the component
     expect(
-      screen.getByText(/Manage content blocks and SEO for this page./i)
+      screen.getByText(/Manage content blocks for this page\./i)
     ).toBeInTheDocument();
   });
 
@@ -134,14 +136,15 @@ describe("PageEditor", () => {
     expect(screen.getByText(/Edit Page/i)).toBeInTheDocument();
   });
 
-  it("calls save when clicking 'Save page' button", () => {
+  it("calls save when clicking 'Save draft' button", () => {
     mockUseParams.mockReturnValue({ id: "new" });
     const saveMock = vi.fn();
     setupMockHook({ save: saveMock });
 
     render(<PageEditor />);
 
-    const button = screen.getByRole("button", { name: /Save page/i });
+    // Now the button that calls save() directly is called "Save draft"
+    const button = screen.getByRole("button", { name: /Save draft/i });
     fireEvent.click(button);
 
     expect(saveMock).toHaveBeenCalledTimes(1);
@@ -180,17 +183,21 @@ describe("PageEditor", () => {
 
     render(<PageEditor />);
 
-    // Labels now include counters: "+ Hero (0)", etc.
+    // The labels include counters: "+ Hero (0)", etc.
     fireEvent.click(screen.getByRole("button", { name: /\+ Hero/i }));
-    fireEvent.click(screen.getByRole("button", { name: /\+ Columns/i }));
-    fireEvent.click(screen.getByRole("button", { name: /\+ Heading/i }));
-    fireEvent.click(screen.getByRole("button", { name: /\+ Paragraph/i }));
+    fireEvent.click(
+      screen.getByRole("button", { name: /\+ Columns/i })
+    );
+    fireEvent.click(screen.getByRole("button", { name: /\+ Title/i }));
+    fireEvent.click(
+      screen.getByRole("button", { name: /\+ Paragraph/i })
+    );
     fireEvent.click(screen.getByRole("button", { name: /\+ Image/i }));
 
     expect(addBlock).toHaveBeenCalledTimes(5);
     expect(addBlock).toHaveBeenNthCalledWith(1, "hero");
     expect(addBlock).toHaveBeenNthCalledWith(2, "columns");
-    expect(addBlock).toHaveBeenNthCalledWith(3, "heading");
+    expect(addBlock).toHaveBeenNthCalledWith(3, "title");
     expect(addBlock).toHaveBeenNthCalledWith(4, "paragraph");
     expect(addBlock).toHaveBeenNthCalledWith(5, "image");
   });
@@ -206,7 +213,7 @@ describe("PageEditor", () => {
 
     render(<PageEditor />);
 
-    // "+ Columns" should exist but "+ Hero" should not
+    // "+ Columns" exists, the rest don't
     expect(
       screen.getByRole("button", { name: /\+ Columns/i })
     ).toBeInTheDocument();
@@ -214,7 +221,7 @@ describe("PageEditor", () => {
       screen.queryByRole("button", { name: /\+ Hero/i })
     ).not.toBeInTheDocument();
     expect(
-      screen.queryByRole("button", { name: /\+ Heading/i })
+      screen.queryByRole("button", { name: /\+ Title/i })
     ).not.toBeInTheDocument();
     expect(
       screen.queryByRole("button", { name: /\+ Paragraph/i })
@@ -224,7 +231,7 @@ describe("PageEditor", () => {
     ).not.toBeInTheDocument();
   });
 
-  it("hides slug input when page type is 'footer'", () => {
+  it("hides slug input and shows footer helper when page type is 'footer'", () => {
     mockUseParams.mockReturnValue({ id: "new" });
 
     setupMockHook({
@@ -234,13 +241,13 @@ describe("PageEditor", () => {
 
     render(<PageEditor />);
 
-    // The label "Slug" should not appear
+    // The "Slug" label is no longer shown
     expect(screen.queryByText(/Slug/i)).not.toBeInTheDocument();
 
-    // Footer URL helper text should be visible
+    // text helper of footer
     expect(
       screen.getByText(
-        /The footer is global and rendered at the bottom of all public pages./i
+        /The footer is global and rendered at the bottom of all public pages\./i
       )
     ).toBeInTheDocument();
   });
@@ -280,8 +287,7 @@ describe("PageEditor", () => {
 
     render(<PageEditor />);
 
-    // "Collection" label and select should be visible
-    expect(screen.getByText(/Collection/i)).toBeInTheDocument();
+    // Directamente comprobamos el select por label accesible
     expect(
       screen.getByRole("combobox", { name: /Collection/i })
     ).toBeInTheDocument();
@@ -294,7 +300,7 @@ describe("PageEditor", () => {
       blocks: [
         { id: "1", type: "hero", data: { title: "A" } },
         { id: "2", type: "hero", data: { title: "B" } },
-        { id: "3", type: "heading", data: { text: "H1", level: 1 } },
+        { id: "3", type: "title", data: { text: "H1", level: 1 } },
       ] as any,
     });
 
@@ -304,7 +310,7 @@ describe("PageEditor", () => {
       screen.getByRole("button", { name: /\+ Hero \(2\)/i })
     ).toBeInTheDocument();
     expect(
-      screen.getByRole("button", { name: /\+ Heading \(1\)/i })
+      screen.getByRole("button", { name: /\+ Title \(1\)/i })
     ).toBeInTheDocument();
   });
 });

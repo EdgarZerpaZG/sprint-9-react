@@ -46,8 +46,25 @@ export function usePagesNavTree() {
 
     load();
 
+    const channel = supabase
+      .channel("pages-nav-tree")
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "pages",
+        },
+        () => {
+          if (!alive) return;
+          load();
+        }
+      )
+      .subscribe();
+
     return () => {
       alive = false;
+      supabase.removeChannel(channel);
     };
   }, []);
 

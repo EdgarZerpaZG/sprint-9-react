@@ -14,9 +14,10 @@ export default function RegisterForm() {
 
   return (
     <>
-      <form onSubmit={handleRegister}>
+      <form className="p-5 bg-slate-900 text-white rounded-lg shadow-lg" onSubmit={handleRegister}>
         <div className="space-y-12">
           <div className="border-b border-white/10 pb-12">
+            <h2 className="text-center text-xl font-bold mb-4">REGISTER</h2>
             <h2 className="text-base/7 font-semibold ">Profile</h2>
             <p className="mt-1 text-sm/6 text-gray-400">
               This information will be displayed publicly so be careful what you
@@ -33,7 +34,7 @@ export default function RegisterForm() {
                 <div className="mt-2">
                   <div className="flex items-center rounded-md bg-white/5 pl-3 outline-1 -outline-offset-1 focus-within:outline-2 focus-within:-outline-offset-2 focus-within:outline-indigo-500">
                     <div className="shrink-0 text-base text-gray-400 select-none sm:text-sm/6">
-                      animal-shelter.com/
+                      shellpets.com/
                     </div>
                     <input
                       id="username"
