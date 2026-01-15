@@ -65,7 +65,7 @@ export default function DashboardLayout() {
         </div>
 
         {/* Nav */}
-        <nav className="p-3 space-y-1 overflow-y-auto h-[calc(100vh-64px)]">
+        <nav className="p-3 space-y-1 overflow-y-auto h-[calc(100vh-17%)]">
           {/* Admin only */}
           {role === "admin" && (
             <>

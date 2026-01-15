@@ -3,12 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "../../lib/supabaseClient";
 import { usePages } from "../../features/content/hooks/usePages";
 import { useUserRole } from "../../hooks/useUserRole";
-import {
-  Search as SearchIcon,
-  ArrowUpDown,
-  ChevronLeft,
-  ChevronRight,
-} from "lucide-react";
+import {Search as SearchIcon, ArrowUpDown, ChevronLeft, ChevronRight} from "lucide-react";
 
 type SortField = "title" | "updated_at";
 

@@ -20,13 +20,8 @@ import DashboardLayout from "../layout/DashboardLayout";
 
 import SettingsManagement from "../pages/Dashboard/SettingsManagement";
 
-import HomeManagement from "../pages/Dashboard/HomeManagement";
-import HomeEditor from "../pages/Dashboard/HomeEditor";
-
 import PagesManagement from "../pages/Dashboard/PagesManagement";
 import PageEditor from "../pages/Dashboard/PageEditor";
-
-import FooterEditor from "../pages/Dashboard/FooterEditor";
 
 export default function PagesRoutes() {
   return (
@@ -58,9 +53,6 @@ export default function PagesRoutes() {
       >
         <Route index element={<Dashboard />} />
 
-        <Route path="home-management" element={<HomeManagement />} />
-        <Route path="home-management/edit" element={<HomeEditor />} />
-
         <Route
           path="settings-management"
           element={
@@ -83,7 +75,6 @@ export default function PagesRoutes() {
         <Route path="pages/new" element={<PageEditor />} />
         <Route path="pages/:id" element={<PageEditor />} />
 
-        <Route path="footer-management" element={<FooterEditor />} />
       </Route>
 
       <Route path="/access-denied" element={<AccessDenied />} />

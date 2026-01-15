@@ -255,7 +255,6 @@ describe("PageEditor", () => {
   it("shows 'Collection' selector when type is 'content' and collections exist", () => {
     mockUseParams.mockReturnValue({ id: "new" });
 
-    // Simulate a collection from usePages
     mockUsePages.mockReturnValue({
       pages: [
         {
@@ -287,7 +286,6 @@ describe("PageEditor", () => {
 
     render(<PageEditor />);
 
-    // Directamente comprobamos el select por label accesible
     expect(
       screen.getByRole("combobox", { name: /Collection/i })
     ).toBeInTheDocument();
